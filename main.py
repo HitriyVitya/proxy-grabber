@@ -24,8 +24,8 @@ CHANNELS = [
 
 
 # Лимиты, чтобы скрипт не сдох по таймауту
-MAX_LINKS_PER_CHANNEL = 700 # Сколько ссылок сосать с одного канала
-MAX_PAGES_PER_CHANNEL = 70  # Сколько раз нажимать "Load more"
+MAX_LINKS_PER_CHANNEL = 5000 # Сколько ссылок сосать с одного канала
+MAX_PAGES_PER_CHANNEL = 200  # Сколько раз нажимать "Load more"
 MAX_TOTAL_ALIVE = 1200       # Сколько живых оставить в итоге (самых свежих)
 
 TIMEOUT = 2
@@ -251,6 +251,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
