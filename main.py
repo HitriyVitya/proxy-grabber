@@ -1,10 +1,16 @@
+
+
 import requests
 from bs4 import BeautifulSoup
 import re
 import base64
 import json
 import asyncio
-from urllib.parse import urlparse, unquote, quote
+from urllib.parse import urlparse, unquote, parse_qs, quote
+import yaml # pip install pyyaml
+
+# --- НАСТРОЙКИ ---
+
 
 # --- НАСТРОЙКИ ---
 CHANNELS = [
@@ -13,9 +19,7 @@ CHANNELS = [
     "v2ray_outlineir",
     "v2ray_free_conf"
 ]
-
-
-MSG_LIMIT = 600 
+MSG_LIMIT = 600
 TIMEOUT = 2
 GEOIP_BATCH_SIZE = 100
 
@@ -57,32 +61,6 @@ def batch_get_countries(ips):
             print(f"⚠️ Ошибка GeoIP API: {e}")
     return ip_map
 
-def add_flag_to_link(link, ip, flag):
-    if not flag: return link
-    try:
-        if link.startswith("vmess://"):
-            b64_part = link[8:]
-            decoded = safe_base64_decode(b64_part)
-            if decoded:
-                data = json.loads(decoded)
-                current_name = data.get('ps', 'vmess')
-                if flag not in current_name:
-                    data['ps'] = f"{flag} {current_name}"
-                new_b64 = base64.b64encode(json.dumps(data).encode('utf-8')).decode('utf-8')
-                return f"vmess://{new_b64}"
-        else:
-            if "#" in link:
-                main_part, name = link.split("#", 1)
-                name = unquote(name)
-                if flag not in name:
-                    new_name = f"{flag} {name}"
-                    return f"{main_part}#{quote(new_name)}"
-            else:
-                return f"{link}#{quote(flag + ' Server')}"
-        return link
-    except:
-        return link
-
 async def check_port(ip, port):
     try:
         conn = asyncio.open_connection(ip, port)
@@ -96,17 +74,17 @@ async def check_port(ip, port):
 def extract_ip_port(link):
     try:
         if link.startswith("vmess://"):
-            b64_part = link[8:]
-            decoded = safe_base64_decode(b64_part)
+            b64 = link[8:]
+            decoded = safe_base64_decode(b64)
             if decoded:
                 data = json.loads(decoded)
                 return data.get('add'), int(data.get('port'))
             return None, None
-
+        
         parsed = urlparse(link)
         if link.startswith("ss://") and "@" in link:
-            part_after_at = link.split("@")[-1]
-            ip_port = part_after_at.split("/")[0].split("?")[0].split("#")[0]
+            part = link.split("@")[-1]
+            ip_port = part.split("/")[0].split("?")[0].split("#")[0]
             if ":" in ip_port:
                 ip = ip_port.split(":")[0].replace("[", "").replace("]", "")
                 port = int(ip_port.split(":")[1])
@@ -119,12 +97,127 @@ def extract_ip_port(link):
     except:
         return None, None
 
+# --- ПАРСЕР ДЛЯ CLASH (Самое сложное) ---
+def link_to_clash_proxy(link):
+    """Превращает ссылку в словарь для Clash"""
+    try:
+        # 1. VMESS
+        if link.startswith("vmess://"):
+            data = json.loads(safe_base64_decode(link[8:]))
+            proxy = {
+                'name': data.get('ps', 'vmess'),
+                'type': 'vmess',
+                'server': data.get('add'),
+                'port': int(data.get('port')),
+                'uuid': data.get('id'),
+                'alterId': int(data.get('aid', 0)),
+                'cipher': 'auto',
+                'udp': True
+            }
+            if data.get('net'):
+                proxy['network'] = data.get('net')
+                if data.get('net') == 'ws':
+                    proxy['ws-opts'] = {'path': data.get('path', '/'), 'headers': {'Host': data.get('host', '')}}
+            if data.get('tls') == 'tls':
+                proxy['tls'] = True
+                proxy['skip-cert-verify'] = True
+            return proxy
+
+        # 2. VLESS & TROJAN
+        if link.startswith("vless://") or link.startswith("trojan://"):
+            parsed = urlparse(link)
+            qs = parse_qs(parsed.query)
+            
+            proxy = {
+                'name': unquote(parsed.fragment) if parsed.fragment else 'vless',
+                'type': 'vless' if link.startswith('vless') else 'trojan',
+                'server': parsed.hostname,
+                'port': parsed.port,
+                'uuid': parsed.username, # для trojan это password
+                'udp': True,
+                'skip-cert-verify': True
+            }
+            
+            if link.startswith('trojan'):
+                proxy['password'] = parsed.username
+                del proxy['uuid']
+
+            # Flow (Reality / Vision)
+            if 'flow' in qs and qs['flow'][0]:
+                proxy['flow'] = qs['flow'][0]
+            
+            # TLS / Reality
+            if qs.get('security', [''])[0] == 'reality':
+                proxy['tls'] = True
+                proxy['servername'] = qs.get('sni', [''])[0]
+                proxy['reality-opts'] = {
+                    'public-key': qs.get('pbk', [''])[0],
+                    'short-id': qs.get('sid', [''])[0]
+                }
+                if 'fp' in qs: proxy['client-fingerprint'] = qs['fp'][0]
+            elif qs.get('security', [''])[0] == 'tls':
+                proxy['tls'] = True
+                if 'sni' in qs: proxy['servername'] = qs['sni'][0]
+            
+            # Transport
+            net = qs.get('type', ['tcp'])[0]
+            proxy['network'] = net
+            if net == 'ws':
+                proxy['ws-opts'] = {'path': qs.get('path', ['/'])[0]}
+                if 'host' in qs: proxy['ws-opts'].setdefault('headers', {})['Host'] = qs['host'][0]
+            if net == 'grpc':
+                proxy['grpc-opts'] = {'grpc-service-name': qs.get('serviceName', [''])[0]}
+                
+            return proxy
+
+        # 3. SHADOWSOCKS
+        if link.startswith("ss://"):
+            # Формат user:pass@ip:port
+            if "@" in link:
+                main = link.split("#")[0]
+                name = unquote(link.split("#")[1]) if "#" in link else "SS"
+                
+                # Попытка декодировать base64 часть (cipher:pass)
+                part1 = main.split("@")[0].replace("ss://", "")
+                part2 = main.split("@")[1]
+                
+                # Если part1 это base64
+                try:
+                    decoded = safe_base64_decode(part1)
+                    if ":" in decoded:
+                        cipher, password = decoded.split(":", 1)
+                    else:
+                        return None # Нестандартный формат
+                except:
+                    # Бывает новый формат без base64
+                    if ":" in part1:
+                        cipher, password = part1.split(":", 1)
+                    else: return None
+
+                ip = part2.split(":")[0]
+                port = int(part2.split(":")[1].split("/")[0])
+                
+                proxy = {
+                    'name': name,
+                    'type': 'ss',
+                    'server': ip,
+                    'port': port,
+                    'cipher': cipher,
+                    'password': password,
+                    'udp': True
+                }
+                return proxy
+            
+        return None # Остальное пока скипаем (Hysteria и т.д. сложнее)
+    except Exception as e:
+        # print(f"Error parsing link for Clash: {e}")
+        return None
+
+# --- ОСНОВНАЯ ЛОГИКА ---
+
 def get_raw_links():
     links = set()
-    # ВОТ ТУТ БЫЛА ОШИБКА. Добавил ?: в начале скобок.
-    # Это значит "Не захватывай группу отдельно, бери всё вместе".
-    pattern = re.compile(r'(?:vless|vmess|ss|ssr|trojan|hy2|hysteria|hysteria2|tuic)://[^ \n<]+')
-
+    pattern = re.compile(r'(?:vless|vmess|ss|trojan)://[^ \n<]+')
     for channel in CHANNELS:
         print(f"🔍 Парсинг {channel}...")
         try:
@@ -139,72 +232,149 @@ def get_raw_links():
                     links.add(clean)
         except Exception as e:
             print(f"⚠️ Ошибка {channel}: {e}")
-            
     return list(links)
 
-async def filter_and_rename(links):
-    print(f"🧐 Найдено {len(links)} ссылок (сырых). Проверяем...")
-    if len(links) > 0:
-        print(f"👀 Пример ссылки: {links[0][:50]}...")
+def add_flag_to_link_and_get_name(link, ip, flag):
+    """
+    Добавляет флаг в ссылку И возвращает красивое имя для Clash
+    """
+    name = "Proxy"
+    new_link = link
+    
+    try:
+        # VMESS
+        if link.startswith("vmess://"):
+            b64 = link[8:]
+            decoded = safe_base64_decode(b64)
+            if decoded:
+                data = json.loads(decoded)
+                curr = data.get('ps', 'vmess')
+                if flag and flag not in curr:
+                    curr = f"{flag} {curr}"
+                    data['ps'] = curr
+                name = curr
+                new_link = "vmess://" + base64.b64encode(json.dumps(data).encode('utf-8')).decode('utf-8')
+        
+        # Остальные
+        else:
+            if "#" in link:
+                main, tag = link.split("#", 1)
+                tag = unquote(tag)
+                if flag and flag not in tag:
+                    tag = f"{flag} {tag}"
+                name = tag
+                new_link = f"{main}#{quote(tag)}"
+            else:
+                name = f"{flag} Server" if flag else "Server"
+                new_link = f"{link}#{quote(name)}"
+                
+    except:
+        pass
+        
+    return new_link, name
+
+async def process_all(links):
+    print(f"🧐 Найдено {len(links)} ссылок. Проверяем...")
     
     tasks = []
-    candidates = []
-    unchecked = []
+    items = [] # (link, ip, port)
 
     for link in links:
         ip, port = extract_ip_port(link)
         if ip and port:
-            candidates.append((link, ip, port))
-        else:
-            unchecked.append(link)
-
+            items.append((link, ip, port))
+    
     async def verify(item):
         link, ip, port = item
-        is_alive = await check_port(ip, port)
-        return (link, ip) if is_alive else None
+        if await check_port(ip, port):
+            return (link, ip)
+        return None
 
-    results = await asyncio.gather(*(verify(c) for c in candidates))
+    results = await asyncio.gather(*(verify(i) for i in items))
+    alive = [r for r in results if r is not None]
     
-    alive_entries = [res for res in results if res is not None]
-    alive_ips = [entry[1] for entry in alive_entries]
+    print(f"✅ Живых: {len(alive)}. Получаем флаги...")
     
-    print(f"✅ Живых по пингу: {len(alive_entries)}. Определяем страны...")
+    ips = [x[1] for x in alive]
+    ip_flags = batch_get_countries(ips)
     
-    ip_to_flag = batch_get_countries(alive_ips)
-    final_links = []
+    final_links_list = []
+    clash_proxies = []
     
-    for link, ip in alive_entries:
-        flag = ip_to_flag.get(ip, "")
-        new_link = add_flag_to_link(link, ip, flag)
-        final_links.append(new_link)
+    for link, ip in alive:
+        flag = ip_flags.get(ip, "")
         
-    final_links.extend(unchecked)
-    return final_links
+        # 1. Обновляем ссылку (добавляем флаг)
+        new_link, pretty_name = add_flag_to_link_and_get_name(link, ip, flag)
+        final_links_list.append(new_link)
+        
+        # 2. Создаем объект для Clash
+        clash_obj = link_to_clash_proxy(new_link)
+        if clash_obj:
+            # Обновляем имя в объекте клэша, чтобы оно совпадало
+            clash_obj['name'] = pretty_name
+            # Важно: имена в Clash должны быть уникальными!
+            # Если имя дублируется, добавим цифру
+            while any(p['name'] == clash_obj['name'] for p in clash_proxies):
+                clash_obj['name'] += f"_{len(clash_proxies)}"
+                
+            clash_proxies.append(clash_obj)
+            
+    return final_links_list, clash_proxies
 
 def main():
     raw = get_raw_links()
-    if not raw:
-        print("❌ Пусто. Возможно, регулярка не сработала или каналы пустые.")
-        return
+    if not raw: return
 
-    final_list = asyncio.run(filter_and_rename(raw))
+    final_links, clash_data = asyncio.run(process_all(raw))
     
-    if not final_list:
-        print("❌ Все найденные ссылки мертвые.")
-        # Очищаем файл, чтобы не висело старье
-        with open("sub.txt", "w", encoding="utf-8") as f: f.write("")
-        with open("list.txt", "w", encoding="utf-8") as f: f.write("")
+    if not final_links:
+        print("❌ Все мертвые")
         return
 
-    # Сохраняем
+    # 1. Сохраняем sub.txt (Base64)
     with open("list.txt", "w", encoding="utf-8") as f:
-        f.write("\n".join(final_list))
-        
-    b64 = base64.b64encode("\n".join(final_list).encode()).decode()
+        f.write("\n".join(final_links))
+    b64 = base64.b64encode("\n".join(final_links).encode()).decode()
     with open("sub.txt", "w", encoding="utf-8") as f:
         f.write(b64)
         
-    print(f"🎉 Готово! Сохранено {len(final_list)} конфигов.")
+    # 2. Сохраняем clash.yaml
+    # Структура конфига
+    clash_config = {
+        'port': 7890,
+        'socks-port': 7891,
+        'allow-lan': True,
+        'mode': 'rule',
+        'log-level': 'info',
+        'external-controller': '127.0.0.1:9090',
+        'proxies': clash_data,
+        'proxy-groups': [
+            {
+                'name': '🚀 Auto Select',
+                'type': 'url-test',
+                'url': 'http://www.gstatic.com/generate_204',
+                'interval': 300,
+                'tolerance': 50,
+                'proxies': [p['name'] for p in clash_data]
+            },
+            {
+                'name': '🌍 Proxy',
+                'type': 'select',
+                'proxies': ['🚀 Auto Select'] + [p['name'] for p in clash_data]
+            }
+        ],
+        'rules': [
+            'MATCH,🌍 Proxy'
+        ]
+    }
+    
+    # Записываем YAML (нужен pyyaml)
+    with open("clash.yaml", "w", encoding="utf-8") as f:
+        # allow_unicode=True чтобы флаги и русские буквы не ломались
+        yaml.dump(clash_config, f, allow_unicode=True, sort_keys=False)
+        
+    print(f"🎉 Готово! Сохранено {len(final_links)} ссылок и {len(clash_data)} прокси для Clash.")
 
 if __name__ == "__main__":
     main()
