@@ -13,9 +13,13 @@ import yaml
 CHANNELS = [
     "shadowsockskeys",
     "oneclickvpnkeys",
-    "v2ray_outlineir",  # Из твоего скрина
-    "v2ray_free_conf",  # Из твоего скрина         # Добавил от себя (жирный)
-    "iSeqaro",          # Тоже жирный
+    "v2ray_outlineir",
+    "v2ray_free_conf",
+    "iSeqaro",
+    "v2ray_free_vpn",    # Добавил: очень много постов
+    "v2rayngvpn",        # Добавил: свежак
+    "free4vpn",          # Добавил: хорошие сервера
+    "PR_VPN"             # Добавил: часто обновляют
 ]
 
 
@@ -247,5 +251,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
