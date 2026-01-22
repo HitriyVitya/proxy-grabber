@@ -20,9 +20,9 @@ CHANNELS = [
 
 
 # Лимиты, чтобы скрипт не сдох по таймауту
-MAX_LINKS_PER_CHANNEL = 3000 # Сколько ссылок сосать с одного канала
-MAX_PAGES_PER_CHANNEL = 10  # Сколько раз нажимать "Load more"
-MAX_TOTAL_ALIVE = 400       # Сколько живых оставить в итоге (самых свежих)
+MAX_LINKS_PER_CHANNEL = 600 # Сколько ссылок сосать с одного канала
+MAX_PAGES_PER_CHANNEL = 20  # Сколько раз нажимать "Load more"
+MAX_TOTAL_ALIVE = 700       # Сколько живых оставить в итоге (самых свежих)
 
 TIMEOUT = 2
 GEOIP_BATCH_SIZE = 100
@@ -232,4 +232,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
