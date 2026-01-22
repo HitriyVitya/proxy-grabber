@@ -1,0 +1,37 @@
+name: Proxy Grabber & Checker
+
+on:
+  schedule:
+    - cron: '0 */2 * * *' # Запуск каждые 4 часа
+  workflow_dispatch:      # Кнопка ручного запуска
+
+permissions:
+  contents: write
+
+jobs:
+  scrape-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10   # Чтобы не висело вечно
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install libs
+      run: pip install -r requirements.txt
+
+    - name: Run script
+      run: python main.py
+
+    - name: Commit & Push
+      run: |
+        git config --global user.name 'Iron Bot'
+        git config --global user.email 'bot@noreply.github.com'
+        git add list.txt sub.txt
+        # Если есть изменения - коммитим, если нет - молчим
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Updated proxies $(date)" && git push)
