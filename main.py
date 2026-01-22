@@ -203,11 +203,32 @@ async def process_all(links):
 def main():
     raw = get_raw_links()
     if not raw: return
+
     final_links, clash_data = asyncio.run(process_all(raw))
-    with open("list.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_links))
-    with open("sub.txt", "w", encoding="utf-8") as f: f.write(base64.b64encode("\n".join(final_links).encode()).decode())
-    with open("proxies.yaml", "w", encoding="utf-8") as f: yaml.dump({'proxies': clash_data}, f, allow_unicode=True, sort_keys=False)
-    print(f"🎉 Готово!")
+    
+    if not final_links:
+        print("❌ Все мертвые")
+        return
+
+    # 1. list.txt (Просто ссылки)
+    with open("list.txt", "w", encoding="utf-8") as f:
+        f.write("\n".join(final_links))
+        
+    # 2. sub.txt (Base64 для v2rayNG)
+    b64 = base64.b64encode("\n".join(final_links).encode()).decode()
+    with open("sub.txt", "w", encoding="utf-8") as f:
+        f.write(b64)
+        
+    # 3. proxies.yaml (ЧИСТЫЙ СПИСОК ДЛЯ FlClash)
+    # Мы не создаем rules, port и прочее. Только список прокси.
+    clash_provider = {
+        'proxies': clash_data
+    }
+    
+    with open("proxies.yaml", "w", encoding="utf-8") as f:
+        yaml.dump(clash_provider, f, allow_unicode=True, sort_keys=False)
+        
+    print(f"🎉 Готово! Сохранено {len(final_links)} ссылок. Файл proxies.yaml создан.")
 
 if __name__ == "__main__":
     main()
