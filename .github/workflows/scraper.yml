@@ -32,6 +32,6 @@ jobs:
       run: |
         git config --global user.name 'Iron Bot'
         git config --global user.email 'bot@noreply.github.com'
-        git add list.txt sub.txt
+        git add .
         # Если есть изменения - коммитим, если нет - молчим
         git diff --quiet && git diff --staged --quiet || (git commit -m "Updated proxies $(date)" && git push)
