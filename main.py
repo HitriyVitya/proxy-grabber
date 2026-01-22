@@ -1,4 +1,3 @@
-
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -16,39 +15,20 @@ CHANNELS = [
     "v2ray_outlineir",
     "v2ray_free_conf",
     "iSeqaro",
-    "v2ray_free_vpn",    # Добавил: очень много постов
-    "v2rayngvpn",        # Добавил: свежак
-    "free4vpn",          # Добавил: хорошие сервера
-    "PR_VPN"             # Добавил: часто обновляют
+    "v2ray_free_vpn",
+    "v2rayngvpn",
+    "free4vpn",
+    "PR_VPN"
 ]
 
-
-# Лимиты, чтобы скрипт не сдох по таймауту
-MAX_LINKS_PER_CHANNEL = 5000 # Сколько ссылок сосать с одного канала
-MAX_PAGES_PER_CHANNEL = 200  # Сколько раз нажимать "Load more"
-MAX_TOTAL_ALIVE = 1200       # Сколько живых оставить в итоге (самых свежих)
+# Лимиты (проверь эти цифры после вставки!)
+MAX_LINKS_PER_CHANNEL = 1000 
+MAX_PAGES_PER_CHANNEL = 50   
+MAX_TOTAL_ALIVE = 1000       
 
 TIMEOUT = 2
 GEOIP_BATCH_SIZE = 100
-CONCURRENCY_LIMIT = 50      # Проверять не более 50 серверов одновременно
-
-
-# Страны, где Google AI ТОЧНО в бане
-BAN_COUNTRIES = ['RU', 'BY', 'CN', 'IR', 'KP', 'SY', 'CU']
-
-# Ключевые слова "плохих" провайдеров (дата-центры, которые банит Google AI)
-DATACENTER_KEYWORDS = [
-    'amazon', 'aws', 'google', 'oracle', 'microsoft', 'azure', 'digitalocean', 
-    'linode', 'hetzner', 'ovh', 'cloudflare', 'akamai', 'choopa', 'm247', 
-    'leaseweb', 'vultr', 'alibaba', 'fastly'
-]
-
-MAX_LINKS_PER_CHANNEL = 150
-MAX_PAGES_PER_CHANNEL = 10
-MAX_TOTAL_ALIVE = 250 
-TIMEOUT = 2
-GEOIP_BATCH_SIZE = 100
-CONCURRENCY_LIMIT = 50
+CONCURRENCY_LIMIT = 60 # Чуть быстрее прозвон
 
 # --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 
@@ -60,27 +40,23 @@ def safe_base64_decode(s):
     except: return None
 
 def get_flag_emoji(country_code):
-    if not country_code: return ""
+    if not country_code: return "🏳️"
     return "".join(chr(ord(c) + 127397) for c in country_code.upper())
 
 def batch_get_ip_info(ips):
-    """Теперь тянет и страну, и провайдера (isp)"""
     if not ips: return {}
     unique_ips = list(set(ips))
     ip_map = {}
-    print(f"🌍 Анализ репутации для {len(unique_ips)} IP...")
+    print(f"🌍 Анализ IP: {len(unique_ips)} шт...")
     for i in range(0, len(unique_ips), GEOIP_BATCH_SIZE):
         batch = unique_ips[i:i + GEOIP_BATCH_SIZE]
         try:
-            # Запрашиваем страну и провайдера
             resp = requests.post("http://ip-api.com/batch", 
-                               json=[{"query": ip, "fields": "countryCode,isp"} for ip in batch], timeout=10)
+                               json=[{"query": ip, "fields": "countryCode,isp"} for ip in batch], timeout=15)
             data = resp.json()
             for idx, result in enumerate(data):
-                ip_map[batch[idx]] = {
-                    'country': result.get('countryCode', ''),
-                    'isp': result.get('isp', '').lower()
-                }
+                ip_map[batch[idx]] = {'country': result.get('countryCode', ''), 'isp': result.get('isp', '').lower()}
+            time.sleep(1) # Защита от бана API
         except Exception as e: print(f"⚠️ GeoIP Error: {e}")
     return ip_map
 
@@ -97,11 +73,8 @@ async def check_port(ip, port, semaphore):
 def extract_ip_port(link):
     try:
         if link.startswith("vmess://"):
-            b64 = link[8:]
-            decoded = safe_base64_decode(b64)
-            if decoded:
-                data = json.loads(decoded)
-                return data.get('add'), int(data.get('port'))
+            data = json.loads(safe_base64_decode(link[8:]))
+            return data.get('add'), int(data.get('port'))
         parsed = urlparse(link)
         if link.startswith("ss://") and "@" in link:
             part = link.split("@")[-1].split("/")[0].split("?")[0].split("#")[0]
@@ -113,10 +86,16 @@ def extract_ip_port(link):
 # --- ПАРСИНГ ---
 def get_raw_links():
     links = []
-    pattern = re.compile(r'(?:vless|vmess|ss|trojan|hysteria|hysteria2|hy2|tuic)://[^ \n<]+')
+    seen = set()
+    # Регулярка теперь ищет ссылки даже внутри кавычек и другого мусора
+    pattern = re.compile(r'(?:vless|vmess|ss|ssr|trojan|hy2|hysteria|hysteria2|tuic)://[^\s<"\'\)]+')
+    
     for channel in CHANNELS:
-        print(f"🔍 Канал: {channel}")
-        url = f"https://t.me/s/{channel}"; found_in_channel = 0; pages = 0
+        print(f"🔍 Парсинг канала: {channel}")
+        url = f"https://t.me/s/{channel}"
+        found_in_channel = 0
+        pages = 0
+        
         while pages < MAX_PAGES_PER_CHANNEL:
             try:
                 resp = requests.get(url, timeout=10)
@@ -124,80 +103,76 @@ def get_raw_links():
                 soup = BeautifulSoup(resp.text, 'html.parser')
                 messages = soup.find_all('div', class_='tgme_widget_message_text')
                 if not messages: break
+                
+                new_on_page = 0
                 for msg in reversed(messages):
                     text = msg.get_text()
                     matches = pattern.findall(text)
                     for link in matches:
-                        clean = link.strip().rstrip('.,<>"\')]}')
-                        if clean not in links:
+                        clean = link.strip().split('<')[0].split('"')[0].split("'")[0]
+                        if clean not in seen:
+                            seen.add(clean)
                             links.append(clean)
+                            new_on_page += 1
                             found_in_channel += 1
-                    if found_in_channel >= MAX_LINKS_PER_CHANNEL: break
+                    
+                    # Проверяем также скрытые ссылки в <a>
+                    for a in msg.find_all('a', href=True):
+                        h = a['href']
+                        if '://' in h and h not in seen:
+                            if any(prot in h for prot in ['vless','vmess','ss://','trojan']):
+                                seen.add(h); links.append(h); found_in_channel += 1
+                
                 if found_in_channel >= MAX_LINKS_PER_CHANNEL: break
+                if new_on_page == 0 and pages > 2: break # Если 3 страницы подряд пусто - канал кончился
+                
                 more_tag = soup.find('a', class_='tme_messages_more')
                 if more_tag and 'href' in more_tag.attrs:
-                    url = "https://t.me" + more_tag['href']; pages += 1
+                    url = "https://t.me" + more_tag['href']
+                    pages += 1
                 else: break
             except: break
-        print(f"   ✅ Взято {found_in_channel} ссылок.")
+        print(f"   ✅ С канала {channel} взято уникальных: {found_in_channel}")
     return links
 
-def add_labels_to_link(link, ip, ip_info):
-    """Умная маркировка ✨ AI"""
-    country_code = ip_info.get('country', '')
-    isp_name = ip_info.get('isp', '')
+def add_labels(link, ip, info):
+    country = info.get('country', '')
+    isp = info.get('isp', '')
+    flag = get_flag_emoji(country)
     
-    flag = get_flag_emoji(country_code)
-    
-    # Решаем, подходит ли для AI
-    is_ai_friendly = True
-    
-    # 1. Если страна в бане
-    if country_code in BAN_COUNTRIES:
-        is_ai_friendly = False
-    
-    # 2. Если провайдер из "черного списка" дата-центров
-    if any(word in isp_name for word in DATACENTER_KEYWORDS):
-        is_ai_friendly = False
-        
-    # 3. Shadowsocks Гугл палит на раз-два, убираем его из AI-списка
-    if link.startswith("ss://"):
-        is_ai_friendly = False
+    # Репутация для AI
+    bad_isps = ['amazon','aws','google','oracle','microsoft','azure','digitalocean','hetzner','m247','ovh','cloudflare']
+    is_ai = country not in ['RU','BY','CN','IR','KP'] and not any(w in isp for w in bad_isps) and not link.startswith("ss://")
+    ai_tag = " ✨ AI" if is_ai else ""
 
-    ai_tag = " ✨ AI" if is_ai_friendly else ""
-
-    name = "Proxy"
-    new_link = link
     try:
         if link.startswith("vmess://"):
             data = json.loads(safe_base64_decode(link[8:]))
             curr = re.sub(r'[^\w\s\d\-]', '', data.get('ps', 'vmess')).strip()
-            name = f"{flag}{ai_tag} {curr}"
-            data['ps'] = name
-            new_link = "vmess://" + base64.b64encode(json.dumps(data).encode('utf-8')).decode('utf-8')
+            data['ps'] = f"{flag}{ai_tag} {curr}"
+            return "vmess://" + base64.b64encode(json.dumps(data).encode('utf-8')).decode('utf-8'), data['ps']
         else:
             main, tag = link.split("#", 1) if "#" in link else (link, "Server")
             tag = re.sub(r'[^\w\s\d\-]', '', unquote(tag)).strip()
             name = f"{flag}{ai_tag} {tag}"
-            new_link = f"{main}#{quote(name)}"
-    except: pass
-    return new_link, name
+            return f"{main}#{quote(name)}", name
+    except: return link, "Proxy"
 
-def link_to_clash_proxy(link):
+def link_to_clash(link, name):
     try:
         if link.startswith("vmess://"):
             data = json.loads(safe_base64_decode(link[8:]))
-            return {'name': data.get('ps', 'v'), 'type': 'vmess', 'server': data.get('add'), 'port': int(data.get('port')), 'uuid': data.get('id'), 'alterId': 0, 'cipher': 'auto', 'udp': True, 'tls': data.get('tls')=='tls', 'skip-cert-verify': True, 'network': data.get('net', 'tcp')}
+            return {'name': name, 'type': 'vmess', 'server': data.get('add'), 'port': int(data.get('port')), 'uuid': data.get('id'), 'alterId': 0, 'cipher': 'auto', 'udp': True, 'tls': data.get('tls')=='tls', 'skip-cert-verify': True, 'network': data.get('net', 'tcp')}
         if link.startswith("vless://") or link.startswith("trojan://"):
             parsed = urlparse(link); qs = parse_qs(parsed.query)
-            proxy = {'name': unquote(parsed.fragment) or 'v', 'type': 'vless' if link.startswith('vless') else 'trojan', 'server': parsed.hostname, 'port': parsed.port, 'uuid': parsed.username, 'password': parsed.username, 'udp': True, 'skip-cert-verify': True, 'tls': qs.get('security', [''])[0] in ['tls', 'reality'], 'network': qs.get('type', ['tcp'])[0]}
-            if 'uuid' in proxy and link.startswith('trojan'): del proxy['uuid']
+            proxy = {'name': name, 'type': 'vless' if link.startswith('vless') else 'trojan', 'server': parsed.hostname, 'port': parsed.port, 'uuid': parsed.username, 'password': parsed.username, 'udp': True, 'skip-cert-verify': True, 'tls': qs.get('security', [''])[0] in ['tls', 'reality'], 'network': qs.get('type', ['tcp'])[0]}
+            if link.startswith('trojan'): del proxy['uuid']
             if qs.get('security', [''])[0] == 'reality':
                 proxy['servername'] = qs.get('sni', [''])[0]; proxy['reality-opts'] = {'public-key': qs.get('pbk', [''])[0], 'short-id': qs.get('sid', [''])[0]}; proxy['client-fingerprint'] = 'chrome'
             return proxy
         if link.startswith("ss://"):
             if "@" in link:
-                main = link.split("#")[0]; name = unquote(link.split("#")[1]) if "#" in link else "SS"
+                main = link.split("#")[0]
                 p1 = main.split("@")[0].replace("ss://", ""); p2 = main.split("@")[1]
                 try: dec = safe_base64_decode(p1); ciph, pw = dec.split(":", 1) if ":" in dec else (p1, "")
                 except: ciph, pw = "aes-256-gcm", p1
@@ -206,7 +181,7 @@ def link_to_clash_proxy(link):
     return None
 
 async def process_all(links):
-    print(f"🧐 Проверка {len(links)} ссылок...")
+    print(f"🧐 Всего кандидатов: {len(links)}. Начинаем проверку...")
     semaphore = asyncio.Semaphore(CONCURRENCY_LIMIT)
     items = []
     for link in links:
@@ -219,39 +194,32 @@ async def process_all(links):
         return None
 
     results = await asyncio.gather(*(verify(i) for i in items))
-    alive = [r for r in results if r is not None]
-    alive = alive[:MAX_TOTAL_ALIVE]
+    alive = [r for r in results if r is not None][:MAX_TOTAL_ALIVE]
     
-    # Получаем расширенную инфу об IP (Страна + ISP)
-    ip_data_map = batch_get_ip_info([x[1] for x in alive])
+    print(f"✅ Живых: {len(alive)}. Получаем инфо о провайдерах...")
+    ip_info = batch_get_ip_info([x[1] for x in alive])
     
     final_links = []; clash_proxies = []
     for link, ip in alive:
-        info = ip_data_map.get(ip, {})
-        new_link, pretty_name = add_labels_to_link(link, ip, info)
-        
+        new_link, pretty_name = add_labels(link, ip, ip_info.get(ip, {}))
         final_links.append(new_link)
-        clash_obj = link_to_clash_proxy(new_link)
+        clash_obj = link_to_clash(new_link, pretty_name)
         if clash_obj:
-            clash_obj['name'] = pretty_name
-            while any(p['name'] == clash_obj['name'] for p in clash_proxies):
-                clash_obj['name'] += " "
+            while any(p['name'] == clash_obj['name'] for p in clash_proxies): clash_obj['name'] += " "
             clash_proxies.append(clash_obj)
             
     return final_links, clash_proxies
 
 def main():
+    print(f"--- ЗАПУСК МОНАХА (Лимит: {MAX_LINKS_PER_CHANNEL} на канал) ---")
     raw = get_raw_links()
     if not raw: return
     final_links, clash_data = asyncio.run(process_all(raw))
+    
     with open("list.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_links))
     with open("sub.txt", "w", encoding="utf-8") as f: f.write(base64.b64encode("\n".join(final_links).encode()).decode())
     with open("proxies.yaml", "w", encoding="utf-8") as f: yaml.dump({'proxies': clash_data}, f, allow_unicode=True, sort_keys=False)
-    print(f"🎉 Готово!")
+    print(f"🎉 Готово! Всего серверов: {len(final_links)}")
 
 if __name__ == "__main__":
     main()
-
-
-
-
