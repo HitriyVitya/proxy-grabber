@@ -28,6 +28,24 @@ TIMEOUT = 2
 GEOIP_BATCH_SIZE = 100
 CONCURRENCY_LIMIT = 50      # Проверять не более 50 серверов одновременно
 
+
+# Страны, где Google AI ТОЧНО в бане
+BAN_COUNTRIES = ['RU', 'BY', 'CN', 'IR', 'KP', 'SY', 'CU']
+
+# Ключевые слова "плохих" провайдеров (дата-центры, которые банит Google AI)
+DATACENTER_KEYWORDS = [
+    'amazon', 'aws', 'google', 'oracle', 'microsoft', 'azure', 'digitalocean', 
+    'linode', 'hetzner', 'ovh', 'cloudflare', 'akamai', 'choopa', 'm247', 
+    'leaseweb', 'vultr', 'alibaba', 'fastly'
+]
+
+MAX_LINKS_PER_CHANNEL = 150
+MAX_PAGES_PER_CHANNEL = 10
+MAX_TOTAL_ALIVE = 250 
+TIMEOUT = 2
+GEOIP_BATCH_SIZE = 100
+CONCURRENCY_LIMIT = 50
+
 # --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 
 def safe_base64_decode(s):
@@ -41,20 +59,24 @@ def get_flag_emoji(country_code):
     if not country_code: return ""
     return "".join(chr(ord(c) + 127397) for c in country_code.upper())
 
-def batch_get_countries(ips):
+def batch_get_ip_info(ips):
+    """Теперь тянет и страну, и провайдера (isp)"""
     if not ips: return {}
     unique_ips = list(set(ips))
     ip_map = {}
-    print(f"🌍 GeoIP для {len(unique_ips)} IP...")
+    print(f"🌍 Анализ репутации для {len(unique_ips)} IP...")
     for i in range(0, len(unique_ips), GEOIP_BATCH_SIZE):
         batch = unique_ips[i:i + GEOIP_BATCH_SIZE]
         try:
+            # Запрашиваем страну и провайдера
             resp = requests.post("http://ip-api.com/batch", 
-                               json=[{"query": ip, "fields": "countryCode"} for ip in batch], timeout=10)
+                               json=[{"query": ip, "fields": "countryCode,isp"} for ip in batch], timeout=10)
             data = resp.json()
             for idx, result in enumerate(data):
-                if 'countryCode' in result:
-                    ip_map[batch[idx]] = get_flag_emoji(result['countryCode'])
+                ip_map[batch[idx]] = {
+                    'country': result.get('countryCode', ''),
+                    'isp': result.get('isp', '').lower()
+                }
         except Exception as e: print(f"⚠️ GeoIP Error: {e}")
     return ip_map
 
@@ -88,13 +110,9 @@ def extract_ip_port(link):
 def get_raw_links():
     links = []
     pattern = re.compile(r'(?:vless|vmess|ss|trojan|hysteria|hysteria2|hy2|tuic)://[^ \n<]+')
-    
     for channel in CHANNELS:
         print(f"🔍 Канал: {channel}")
-        url = f"https://t.me/s/{channel}"
-        found_in_channel = 0
-        pages = 0
-        
+        url = f"https://t.me/s/{channel}"; found_in_channel = 0; pages = 0
         while pages < MAX_PAGES_PER_CHANNEL:
             try:
                 resp = requests.get(url, timeout=10)
@@ -102,8 +120,6 @@ def get_raw_links():
                 soup = BeautifulSoup(resp.text, 'html.parser')
                 messages = soup.find_all('div', class_='tgme_widget_message_text')
                 if not messages: break
-                
-                # Собираем ссылки с текущей страницы (с конца, т.к. они свежее)
                 for msg in reversed(messages):
                     text = msg.get_text()
                     matches = pattern.findall(text)
@@ -113,32 +129,52 @@ def get_raw_links():
                             links.append(clean)
                             found_in_channel += 1
                     if found_in_channel >= MAX_LINKS_PER_CHANNEL: break
-                
                 if found_in_channel >= MAX_LINKS_PER_CHANNEL: break
-                
                 more_tag = soup.find('a', class_='tme_messages_more')
                 if more_tag and 'href' in more_tag.attrs:
-                    url = "https://t.me" + more_tag['href']
-                    pages += 1
+                    url = "https://t.me" + more_tag['href']; pages += 1
                 else: break
             except: break
         print(f"   ✅ Взято {found_in_channel} ссылок.")
     return links
 
-def add_flag_to_link_and_get_name(link, ip, flag):
+def add_labels_to_link(link, ip, ip_info):
+    """Умная маркировка ✨ AI"""
+    country_code = ip_info.get('country', '')
+    isp_name = ip_info.get('isp', '')
+    
+    flag = get_flag_emoji(country_code)
+    
+    # Решаем, подходит ли для AI
+    is_ai_friendly = True
+    
+    # 1. Если страна в бане
+    if country_code in BAN_COUNTRIES:
+        is_ai_friendly = False
+    
+    # 2. Если провайдер из "черного списка" дата-центров
+    if any(word in isp_name for word in DATACENTER_KEYWORDS):
+        is_ai_friendly = False
+        
+    # 3. Shadowsocks Гугл палит на раз-два, убираем его из AI-списка
+    if link.startswith("ss://"):
+        is_ai_friendly = False
+
+    ai_tag = " ✨ AI" if is_ai_friendly else ""
+
     name = "Proxy"
     new_link = link
     try:
         if link.startswith("vmess://"):
             data = json.loads(safe_base64_decode(link[8:]))
             curr = re.sub(r'[^\w\s\d\-]', '', data.get('ps', 'vmess')).strip()
-            name = f"{flag} {curr}" if flag else curr
+            name = f"{flag}{ai_tag} {curr}"
             data['ps'] = name
             new_link = "vmess://" + base64.b64encode(json.dumps(data).encode('utf-8')).decode('utf-8')
         else:
             main, tag = link.split("#", 1) if "#" in link else (link, "Server")
             tag = re.sub(r'[^\w\s\d\-]', '', unquote(tag)).strip()
-            name = f"{flag} {tag}" if flag else tag
+            name = f"{flag}{ai_tag} {tag}"
             new_link = f"{main}#{quote(name)}"
     except: pass
     return new_link, name
@@ -180,17 +216,16 @@ async def process_all(links):
 
     results = await asyncio.gather(*(verify(i) for i in items))
     alive = [r for r in results if r is not None]
-    
-    # Оставляем только самые свежие
     alive = alive[:MAX_TOTAL_ALIVE]
-    print(f"✅ Живых: {len(alive)}. Получаем флаги...")
     
-    ip_flags = batch_get_countries([x[1] for x in alive])
+    # Получаем расширенную инфу об IP (Страна + ISP)
+    ip_data_map = batch_get_ip_info([x[1] for x in alive])
+    
     final_links = []; clash_proxies = []
-    
     for link, ip in alive:
-        flag = ip_flags.get(ip, "")
-        new_link, pretty_name = add_flag_to_link_and_get_name(link, ip, flag)
+        info = ip_data_map.get(ip, {})
+        new_link, pretty_name = add_labels_to_link(link, ip, info)
+        
         final_links.append(new_link)
         clash_obj = link_to_clash_proxy(new_link)
         if clash_obj:
@@ -198,39 +233,17 @@ async def process_all(links):
             while any(p['name'] == clash_obj['name'] for p in clash_proxies):
                 clash_obj['name'] += " "
             clash_proxies.append(clash_obj)
+            
     return final_links, clash_proxies
 
 def main():
     raw = get_raw_links()
     if not raw: return
-
     final_links, clash_data = asyncio.run(process_all(raw))
-    
-    if not final_links:
-        print("❌ Все мертвые")
-        return
-
-    # 1. list.txt (Просто ссылки)
-    with open("list.txt", "w", encoding="utf-8") as f:
-        f.write("\n".join(final_links))
-        
-    # 2. sub.txt (Base64 для v2rayNG)
-    b64 = base64.b64encode("\n".join(final_links).encode()).decode()
-    with open("sub.txt", "w", encoding="utf-8") as f:
-        f.write(b64)
-        
-    # 3. proxies.yaml (ЧИСТЫЙ СПИСОК ДЛЯ FlClash)
-    # Мы не создаем rules, port и прочее. Только список прокси.
-    clash_provider = {
-        'proxies': clash_data
-    }
-    
-    with open("proxies.yaml", "w", encoding="utf-8") as f:
-        yaml.dump(clash_provider, f, allow_unicode=True, sort_keys=False)
-        
-    print(f"🎉 Готово! Сохранено {len(final_links)} ссылок. Файл proxies.yaml создан.")
+    with open("list.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_links))
+    with open("sub.txt", "w", encoding="utf-8") as f: f.write(base64.b64encode("\n".join(final_links).encode()).decode())
+    with open("proxies.yaml", "w", encoding="utf-8") as f: yaml.dump({'proxies': clash_data}, f, allow_unicode=True, sort_keys=False)
+    print(f"🎉 Готово!")
 
 if __name__ == "__main__":
     main()
-
-
