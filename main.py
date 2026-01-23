@@ -11,31 +11,33 @@ import yaml
 # --- НАСТРОЙКИ ---
 CHANNELS = [
     "shadowsockskeys", "oneclickvpnkeys", "v2ray_outlineir",
-    "v2ray_free_conf", "iSeqaro", "v2rayngvpn", "v2ray_free_vpn"
+    "v2ray_free_conf", "v2rayngvpn", "v2ray_free_vpn"
 ]
 
+# Свежайшие и самые жирные источники на 2026 год
 EXTERNAL_SUBS = [
+    "https://raw.githubusercontent.com/yebekhe/TelegramV2rayCollector/main/sub/normal/mix",
+    "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub1.txt",
     "https://raw.githubusercontent.com/vfarid/v2ray-share/main/all_v2ray_configs.txt",
-    "https://raw.githubusercontent.com/LalatinaHub/Mineral/master/etc/all",
-    "https://raw.githubusercontent.com/yebekhe/TVProxy/main/sub/sub_merge.txt",
-    "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/All_Configs_Sub.txt"
+    "https://raw.githubusercontent.com/funnymonkeys/V2Ray-Configs/main/all",
+    "https://raw.githubusercontent.com/Pawwms/Free-nodes/main/next7days.txt"
 ]
 
-# Лимиты для ТГ (теперь они РАБОТАЮТ)
-MAX_LINKS_PER_CHANNEL = 800 
-MAX_PAGES_PER_CHANNEL = 40   
-MAX_TOTAL_ALIVE = 800       
+MAX_LINKS_PER_CHANNEL = 1000 
+MAX_PAGES_PER_CHANNEL = 30   
+MAX_TOTAL_ALIVE = 600 # Уменьшим до 600 самых быстрых, чтобы Clash летал
 
-TIMEOUT = 1.0 # Только быстрые!
-CONCURRENCY_LIMIT = 50
+TIMEOUT = 0.8 # УЛЬТРА-ЖЕСТКО. Только сервера с мгновенным откликом.
+CONCURRENCY_LIMIT = 100
 
 # --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 
 def safe_base64_decode(s):
-    s = s.strip().replace('\r', '').replace('\n', '')
-    padding = len(s) % 4
-    if padding: s += '=' * (4 - padding)
-    try: return base64.urlsafe_b64decode(s).decode('utf-8', errors='ignore')
+    try:
+        s = s.strip().replace('\r', '').replace('\n', '')
+        padding = len(s) % 4
+        if padding: s += '=' * (4 - padding)
+        return base64.urlsafe_b64decode(s).decode('utf-8', errors='ignore')
     except: return None
 
 def get_flag_emoji(country_code):
@@ -88,58 +90,49 @@ def get_all_links():
     links = []
     pattern = re.compile(r'(?:vless|vmess|ss|ssr|trojan|hy2|hysteria|hysteria2|tuic)://[^\s<"\'\)]+')
 
-    # 1. ТЕЛЕГРАМ С ПАГИНАЦИЕЙ
+    # 1. ТЕЛЕГРАМ
     for channel in CHANNELS:
-        print(f"🔍 Пылесосим ТГ: {channel}")
+        print(f"🔍 Пылесосим ТG: {channel}")
         url = f"https://t.me/s/{channel}"
-        found_in_channel = 0
-        pages = 0
+        found_in_channel = 0; pages = 0
         while pages < MAX_PAGES_PER_CHANNEL:
             try:
                 resp = requests.get(url, timeout=10)
-                if resp.status_code != 200: break
                 soup = BeautifulSoup(resp.text, 'html.parser')
                 messages = soup.find_all('div', class_='tgme_widget_message_text')
                 if not messages: break
-                
-                page_links = 0
                 for msg in reversed(messages):
                     matches = pattern.findall(msg.get_text())
                     for link in matches:
                         clean = link.strip().split('<')[0].split('"')[0]
                         if clean not in seen:
-                            seen.add(clean); links.append(clean); found_in_channel += 1; page_links += 1
-                
+                            seen.add(clean); links.append(clean); found_in_channel += 1
                 if found_in_channel >= MAX_LINKS_PER_CHANNEL: break
-                
-                # Ищем кнопку "Load more"
                 more = soup.find('a', class_='tme_messages_more')
-                if more and 'href' in more.attrs:
-                    url = "https://t.me" + more['href']
-                    pages += 1
+                if more: url = "https://t.me" + more['href']; pages += 1
                 else: break
             except: break
-        print(f"   ✅ Взято {found_in_channel} уникальных.")
+        print(f"   ✅ +{found_in_channel}")
 
-    # 2. ГИТХАБ
-    print(f"📡 Чекаем внешние подписки...")
+    # 2. ГИТХАБ - Улучшенный сбор
+    print(f"📡 Пылесосим элитные гитхаб-агрегаторы...")
     for url in EXTERNAL_SUBS:
         try:
             resp = requests.get(url, timeout=15)
             content = resp.text
-            if not content.startswith(('vless','vmess','ss','trojan')):
-                decoded = safe_base64_decode(content)
-                if decoded: content = decoded
+            # Пробуем декодировать (некоторые подписки целиком в base64)
+            decoded = safe_base64_decode(content)
+            final_content = decoded if decoded and '://' in decoded else content
             
-            matches = pattern.findall(content)
+            matches = pattern.findall(final_content)
             found = 0
             for link in matches:
                 clean = link.strip()
                 if clean not in seen:
                     seen.add(clean); links.append(clean); found += 1
-                if found >= 500: break
-            print(f"   ✅ +{found} из внешних источников")
-        except: pass
+                if found >= 1500: break # С гитхаба берем побольше
+            print(f"   ✅ +{found} с {url.split('/')[-3]}")
+        except: print(f"   ❌ Ошибка доступа к {url[:30]}...")
     
     return links
 
@@ -152,12 +145,12 @@ def add_labels(link, ip, info):
         if link.startswith("vmess://"):
             data = json.loads(safe_base64_decode(link[8:]))
             curr = re.sub(r'[^\w\s\d\-]', '', data.get('ps', 'v')).strip()
-            data['ps'] = f"{flag}{ai_tag} {curr[:15]}"
+            data['ps'] = f"{flag}{ai_tag} {curr[:12]}"
             return "vmess://" + base64.b64encode(json.dumps(data).encode('utf-8')).decode('utf-8'), data['ps']
         else:
             main, tag = link.split("#", 1) if "#" in link else (link, "Srv")
             tag = re.sub(r'[^\w\s\d\-]', '', unquote(tag)).strip()
-            name = f"{flag}{ai_tag} {tag[:15]}"
+            name = f"{flag}{ai_tag} {tag[:12]}"
             return f"{main}#{quote(name)}", name
     except: return link, "Proxy"
 
@@ -183,7 +176,7 @@ def link_to_clash(link, name):
     return None
 
 async def process_all(links):
-    print(f"🧐 Проверка {len(links)} кандидатов...")
+    print(f"🧐 Проверка {len(links)} кандидатов. Timeout: {TIMEOUT}s...")
     semaphore = asyncio.Semaphore(CONCURRENCY_LIMIT)
     items = []
     for link in links:
@@ -214,11 +207,10 @@ def main():
     raw_total = get_all_links()
     if not raw_total: return
     final_links, clash_data = asyncio.run(process_all(raw_total))
-    
     with open("list.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_links))
     with open("sub.txt", "w", encoding="utf-8") as f: f.write(base64.b64encode("\n".join(final_links).encode()).decode())
     with open("proxies.yaml", "w", encoding="utf-8") as f: yaml.dump({'proxies': clash_data}, f, allow_unicode=True, sort_keys=False)
-    print(f"🎉 Готово! Всего серверов: {len(final_links)}")
+    print(f"🎉 Готово! Живых: {len(final_links)}")
 
 if __name__ == "__main__":
     main()
