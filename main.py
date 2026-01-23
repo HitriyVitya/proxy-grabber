@@ -10,38 +10,24 @@ import yaml
 
 # --- НАСТРОЙКИ ---
 CHANNELS = [
-    "shadowsockskeys",
-    "oneclickvpnkeys",
-    "v2ray_outlineir",
-    "v2ray_free_conf",
-    "iSeqaro",
-    "v2ray_free_vpn",
-    "v2rayngvpn",
-    "free4vpn",
-    "PR_VPN"
+    "shadowsockskeys", "oneclickvpnkeys", "v2ray_outlineir",
+    "v2ray_free_conf", "iSeqaro", "v2rayngvpn", "v2ray_free_vpn"
 ]
 
-# Лимиты (проверь эти цифры после вставки!)
-MAX_LINKS_PER_CHANNEL = 1000 
-MAX_PAGES_PER_CHANNEL = 50   
-
-
-
-# ЖИРНЫЕ ИСТОЧНИКИ (Тут лежат тысячи ссылок)
 EXTERNAL_SUBS = [
     "https://raw.githubusercontent.com/vfarid/v2ray-share/main/all_v2ray_configs.txt",
     "https://raw.githubusercontent.com/LalatinaHub/Mineral/master/etc/all",
     "https://raw.githubusercontent.com/yebekhe/TVProxy/main/sub/sub_merge.txt",
-    "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/All_Configs_Sub.txt",
-    "https://raw.githubusercontent.com/LonUp/NodeList/main/NodeList.txt"
+    "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/All_Configs_Sub.txt"
 ]
 
-# Лимиты для стабильности (чтобы Гитхаб не прибил скрипт за 10 минут)
-MAX_LINKS_PER_SOURCE = 1000
-MAX_TOTAL_ALIVE = 800 # Золотая середина для FlClash
+# Лимиты для ТГ (теперь они РАБОТАЮТ)
+MAX_LINKS_PER_CHANNEL = 800 
+MAX_PAGES_PER_CHANNEL = 40   
+MAX_TOTAL_ALIVE = 800       
 
-TIMEOUT = 1.0 # ЖЕСТКО. Только самые быстрые выживут.
-CONCURRENCY_LIMIT = 100 # Проверяем пачками по 100
+TIMEOUT = 1.0 # Только быстрые!
+CONCURRENCY_LIMIT = 50
 
 # --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 
@@ -68,7 +54,7 @@ def batch_get_ip_info(ips):
                                json=[{"query": ip, "fields": "countryCode,isp"} for ip in batch], timeout=15)
             for idx, result in enumerate(resp.json()):
                 ip_map[batch[idx]] = {'country': result.get('countryCode', ''), 'isp': result.get('isp', '').lower()}
-            time.sleep(1.1) # Чтобы API не забанило
+            time.sleep(1.2)
         except: pass
     return ip_map
 
@@ -96,34 +82,52 @@ def extract_ip_port(link):
     return None, None
 
 # --- ПАРСИНГ ---
+
 def get_all_links():
     seen = set()
     links = []
     pattern = re.compile(r'(?:vless|vmess|ss|ssr|trojan|hy2|hysteria|hysteria2|tuic)://[^\s<"\'\)]+')
 
-    # 1. ТЕЛЕГРАМ
+    # 1. ТЕЛЕГРАМ С ПАГИНАЦИЕЙ
     for channel in CHANNELS:
-        print(f"🔍 Парсинг ТГ: {channel}")
-        try:
-            resp = requests.get(f"https://t.me/s/{channel}", timeout=10)
-            matches = pattern.findall(resp.text)
-            found = 0
-            for link in reversed(matches):
-                clean = link.strip().split('<')[0].split('"')[0]
-                if clean not in seen:
-                    seen.add(clean); links.append(clean); found += 1
-                if found >= 100: break
-            print(f"   ✅ +{found}")
-        except: pass
+        print(f"🔍 Пылесосим ТГ: {channel}")
+        url = f"https://t.me/s/{channel}"
+        found_in_channel = 0
+        pages = 0
+        while pages < MAX_PAGES_PER_CHANNEL:
+            try:
+                resp = requests.get(url, timeout=10)
+                if resp.status_code != 200: break
+                soup = BeautifulSoup(resp.text, 'html.parser')
+                messages = soup.find_all('div', class_='tgme_widget_message_text')
+                if not messages: break
+                
+                page_links = 0
+                for msg in reversed(messages):
+                    matches = pattern.findall(msg.get_text())
+                    for link in matches:
+                        clean = link.strip().split('<')[0].split('"')[0]
+                        if clean not in seen:
+                            seen.add(clean); links.append(clean); found_in_channel += 1; page_links += 1
+                
+                if found_in_channel >= MAX_LINKS_PER_CHANNEL: break
+                
+                # Ищем кнопку "Load more"
+                more = soup.find('a', class_='tme_messages_more')
+                if more and 'href' in more.attrs:
+                    url = "https://t.me" + more['href']
+                    pages += 1
+                else: break
+            except: break
+        print(f"   ✅ Взято {found_in_channel} уникальных.")
 
-    # 2. ГИТХАБ ИСТОЧНИКИ
-    print(f"📡 Пылесосим внешние подписки...")
+    # 2. ГИТХАБ
+    print(f"📡 Чекаем внешние подписки...")
     for url in EXTERNAL_SUBS:
         try:
             resp = requests.get(url, timeout=15)
             content = resp.text
-            # Проверка на Base64
-            if not any(x in content[:50] for x in ['vless://', 'vmess://', 'ss://']):
+            if not content.startswith(('vless','vmess','ss','trojan')):
                 decoded = safe_base64_decode(content)
                 if decoded: content = decoded
             
@@ -133,8 +137,8 @@ def get_all_links():
                 clean = link.strip()
                 if clean not in seen:
                     seen.add(clean); links.append(clean); found += 1
-                if found >= MAX_LINKS_PER_SOURCE: break
-            print(f"   ✅ +{found} с {url.split('/')[-2]}")
+                if found >= 500: break
+            print(f"   ✅ +{found} из внешних источников")
         except: pass
     
     return links
@@ -179,7 +183,7 @@ def link_to_clash(link, name):
     return None
 
 async def process_all(links):
-    print(f"🧐 Всего кандидатов: {len(links)}. Начинаем проверку (Timeout: {TIMEOUT}s)...")
+    print(f"🧐 Проверка {len(links)} кандидатов...")
     semaphore = asyncio.Semaphore(CONCURRENCY_LIMIT)
     items = []
     for link in links:
@@ -191,15 +195,11 @@ async def process_all(links):
         if await check_port(ip, port, semaphore): return (link, ip)
         return None
 
-    # Перемешиваем, чтобы не брать всё из одного источника в начале
     import random; random.shuffle(items)
-    
     results = await asyncio.gather(*(verify(i) for i in items))
     alive = [r for r in results if r is not None][:MAX_TOTAL_ALIVE]
     
-    print(f"✅ Живых: {len(alive)}. Получаем GeoIP...")
     ip_info = batch_get_ip_info([x[1] for x in alive])
-    
     final_links = []; clash_proxies = []
     for link, ip in alive:
         new_link, pretty_name = add_labels(link, ip, ip_info.get(ip, {}))
