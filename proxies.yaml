@@ -89,16 +89,6 @@ proxies:
   skip-cert-verify: true
   tls: false
   network: tcp
-- name: 🇷🇺 01oneclick
-  type: vless
-  server: 185.130.114.219
-  port: 443
-  uuid: 309fa273-6579-4cb2-9143-7cad50401eba
-  password: 309fa273-6579-4cb2-9143-7cad50401eba
-  udp: true
-  skip-cert-verify: true
-  tls: false
-  network: tcp
 - name: 🇷🇺 02oneclick
   type: vless
   server: 51.250.33.87
@@ -119,6 +109,16 @@ proxies:
   skip-cert-verify: true
   tls: false
   network: tcp
+- name: 🇷🇺 78oneclick
+  type: vless
+  server: 147.45.237.23
+  port: 4443
+  uuid: 6e6609bf-6867-4fa7-b4c3-d5555d67d724
+  password: 6e6609bf-6867-4fa7-b4c3-d5555d67d724
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: tcp
 - name: 🇨🇦 76oneclick
   type: vless
   server: 162.159.152.4
@@ -129,16 +129,6 @@ proxies:
   skip-cert-verify: true
   tls: false
   network: ws
-- name: 🇷🇺 82oneclick
-  type: vless
-  server: 95.163.248.53
-  port: 4249
-  uuid: 0ee2d410-3e64-4c41-a571-3e5d2b5b8982
-  password: 0ee2d410-3e64-4c41-a571-3e5d2b5b8982
-  udp: true
-  skip-cert-verify: true
-  tls: false
-  network: tcp
 - name: 🇷🇺 81oneclick
   type: vless
   server: 95.163.251.134
@@ -199,16 +189,6 @@ proxies:
   skip-cert-verify: true
   tls: false
   network: ws
-- name: 🇫🇮 ✨ AI 74oneclick
-  type: vless
-  server: 144.31.27.190
-  port: 443
-  uuid: 4fe214fb-048e-431f-b939-4518dc9df6a2
-  password: 4fe214fb-048e-431f-b939-4518dc9df6a2
-  udp: true
-  skip-cert-verify: true
-  tls: false
-  network: tcp
 - name: 🏳️ ✨ AI 63oneclick
   type: vless
   server: ip1-fast.tyryqyserver.ir
@@ -259,9 +239,19 @@ proxies:
   skip-cert-verify: true
   tls: false
   network: tcp
-- name: 🇷🇺 66oneclick
+- name: 🇳🇱 ✨ AI 73oneclick
   type: vless
-  server: 185.251.90.45
+  server: 147.45.243.234
+  port: 4443
+  uuid: 6e6609bf-6867-4fa7-b4c3-d5555d67d724
+  password: 6e6609bf-6867-4fa7-b4c3-d5555d67d724
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: tcp
+- name: 🇷🇺 75oneclick
+  type: vless
+  server: 80.90.186.91
   port: 4443
   uuid: 6e6609bf-6867-4fa7-b4c3-d5555d67d724
   password: 6e6609bf-6867-4fa7-b4c3-d5555d67d724
@@ -299,16 +289,6 @@ proxies:
   skip-cert-verify: true
   tls: false
   network: tcp
-- name: 🇷🇺 65oneclick
-  type: vless
-  server: 95.163.183.192
-  port: 443
-  uuid: 4fe214fb-048e-431f-b939-4518dc9df6a2
-  password: 4fe214fb-048e-431f-b939-4518dc9df6a2
-  udp: true
-  skip-cert-verify: true
-  tls: false
-  network: tcp
 - name: 🇷🇺 67oneclick
   type: vless
   server: 89.208.228.43
@@ -339,7 +319,7 @@ proxies:
   skip-cert-verify: true
   tls: false
   network: tcp
-- name: 🇮🇹 ✨ AI 58oneclick
+- name: 🇮🇹 58oneclick
   type: vless
   server: 151.101.241.242
   port: 80
@@ -499,6 +479,16 @@ proxies:
   skip-cert-verify: true
   tls: false
   network: tcp
+- name: 🇩🇪 ✨ AI 36oneclick
+  type: vless
+  server: 5.101.82.158
+  port: 4443
+  uuid: 6e6609bf-6867-4fa7-b4c3-d5555d67d724
+  password: 6e6609bf-6867-4fa7-b4c3-d5555d67d724
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: tcp
 - name: 🇺🇸 ✨ AI 35oneclick
   type: vless
   server: 92.118.231.130
@@ -579,6 +569,26 @@ proxies:
   skip-cert-verify: true
   tls: false
   network: tcp
+- name: 🇳🇱 ✨ AI 33oneclick
+  type: vless
+  server: 45.67.231.129
+  port: 4443
+  uuid: 6e6609bf-6867-4fa7-b4c3-d5555d67d724
+  password: 6e6609bf-6867-4fa7-b4c3-d5555d67d724
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: tcp
+- name: 🇳🇱 ✨ AI 32oneclick
+  type: vless
+  server: 5.129.214.27
+  port: 4443
+  uuid: 6e6609bf-6867-4fa7-b4c3-d5555d67d724
+  password: 6e6609bf-6867-4fa7-b4c3-d5555d67d724
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: tcp
 - name: 🇳🇱 ✨ AI 39oneclick
   type: vless
   server: 45.87.153.176
@@ -625,16 +635,6 @@ proxies:
   port: 23576
   uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
   password: 48ff2b70-e180-582f-8866-d9a2edeed5f5
-  udp: true
-  skip-cert-verify: true
-  tls: false
-  network: tcp
-- name: 🇺🇸 ✨ AI 16oneclick
-  type: vless
-  server: 107.175.50.148
-  port: 19296
-  uuid: 28c94110-85db-4535-be71-fcec59635e05
-  password: 28c94110-85db-4535-be71-fcec59635e05
   udp: true
   skip-cert-verify: true
   tls: false
@@ -828,16 +828,6 @@ proxies:
   skip-cert-verify: true
   tls: false
   network: grpc
-- name: 🇩🇪 ✨ AI 10oneclick
-  type: vless
-  server: 159.195.43.18
-  port: 22955
-  uuid: 63f92f3c-447c-4283-80b9-0af8e164cdad
-  password: 63f92f3c-447c-4283-80b9-0af8e164cdad
-  udp: true
-  skip-cert-verify: true
-  tls: false
-  network: grpc
 - name: 🇩🇪 9oneclickv
   type: vless
   server: 91.107.169.78
@@ -964,6 +954,26 @@ proxies:
   port: 37795
   uuid: 8287e81d-2560-4aaf-ebc8-f6873c521f83
   password: 8287e81d-2560-4aaf-ebc8-f6873c521f83
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: tcp
+- name: 🇷🇺 85oneclick
+  type: vless
+  server: 83.166.236.240
+  port: 443
+  uuid: 5ac98ff9-c465-4dae-aa67-7b91de454029
+  password: 5ac98ff9-c465-4dae-aa67-7b91de454029
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: tcp
+- name: 🇷🇺 82oneclick
+  type: vless
+  server: 83.166.236.240
+  port: 8443
+  uuid: 1dcea73b-a19f-4c6f-8878-ba4f4b9bd49a
+  password: 1dcea73b-a19f-4c6f-8878-ba4f4b9bd49a
   udp: true
   skip-cert-verify: true
   tls: false
@@ -1108,6 +1118,16 @@ proxies:
   skip-cert-verify: true
   tls: false
   network: tcp
+- name: 🇷🇺 54oneclick
+  type: vless
+  server: 89.208.87.173
+  port: 51102
+  uuid: 661e8eb5-c7eb-4bb0-b58f-46a5bb3f8f74
+  password: 661e8eb5-c7eb-4bb0-b58f-46a5bb3f8f74
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: tcp
 - name: 🇷🇺 49oneclick
   type: vless
   server: 51.250.41.237
@@ -1138,12 +1158,12 @@ proxies:
   skip-cert-verify: true
   tls: false
   network: tcp
-- name: 🇷🇺 56oneclick
+- name: 🇷🇺 57oneclick
   type: vless
-  server: 176.123.164.110
-  port: 443
-  uuid: 661e8eb5-c7eb-4bb0-b58f-46a5bb3f8f74
-  password: 661e8eb5-c7eb-4bb0-b58f-46a5bb3f8f74
+  server: 178.250.246.86
+  port: 1488
+  uuid: 00c49863-6d15-4289-9229-841ee5f7868c
+  password: 00c49863-6d15-4289-9229-841ee5f7868c
   udp: true
   skip-cert-verify: true
   tls: false
@@ -1284,36 +1304,6 @@ proxies:
   port: 443
   uuid: 84d6d574-face-4300-bd27-0eaf3d2942e1
   password: 84d6d574-face-4300-bd27-0eaf3d2942e1
-  udp: true
-  skip-cert-verify: true
-  tls: false
-  network: tcp
-- name: 🏳️ ✨ AI 34oneclick
-  type: vless
-  server: spain.torprospeed.ir
-  port: 587
-  uuid: 65a1e22c-d37e-4b92-b6ca-1d09dcd1d441
-  password: 65a1e22c-d37e-4b92-b6ca-1d09dcd1d441
-  udp: true
-  skip-cert-verify: true
-  tls: false
-  network: tcp
-- name: 🏳️ ✨ AI 40oneclick
-  type: vless
-  server: morgentop.ru
-  port: 52006
-  uuid: 4dcfab42-4703-07d0-b56d-0965380a532e
-  password: 4dcfab42-4703-07d0-b56d-0965380a532e
-  udp: true
-  skip-cert-verify: true
-  tls: false
-  network: tcp
-- name: 🇳🇱 ✨ AI 38oneclick.
-  type: vless
-  server: 212.113.109.101
-  port: 2584
-  uuid: 038a50c3-229c-41ef-a7ef-7abb504e4f33
-  password: 038a50c3-229c-41ef-a7ef-7abb504e4f33
   udp: true
   skip-cert-verify: true
   tls: false
@@ -1558,6 +1548,1066 @@ proxies:
   skip-cert-verify: true
   tls: false
   network: tcp
+- name: 🇺🇸 ✨ AI سرور های ب
+  type: vless
+  server: 198.62.62.127
+  port: 443
+  uuid: 5f6f0e0b-5e9c-4116-8cac-6b325fcc4849
+  password: 5f6f0e0b-5e9c-4116-8cac-6b325fcc4849
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: tcp
+- name: 🇺🇸 ✨ AI سرور های ب.
+  type: vless
+  server: 63.141.128.17
+  port: 443
+  uuid: 924cd0c0-7fd0-4d0f-a23d-6b66808c23af
+  password: 924cd0c0-7fd0-4d0f-a23d-6b66808c23af
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: tcp
+- name: 🇺🇸 ✨ AI سرور های ب..
+  type: vless
+  server: 192.0.54.158
+  port: 2096
+  uuid: 1a25f8ad-cad2-4e93-b5bf-34e42bcac02a
+  password: 1a25f8ad-cad2-4e93-b5bf-34e42bcac02a
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: tcp
+- name: 🏳️ ✨ AI سرور های ب
+  type: vless
+  server: ch.grayping.com
+  port: 20010
+  uuid: 7759f106-3e81-1eb3-2e87-c2c6da221ab2
+  password: 7759f106-3e81-1eb3-2e87-c2c6da221ab2
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: ''
+  reality-opts:
+    public-key: ''
+    short-id: ''
+  client-fingerprint: chrome
+- name: 🏳️ ✨ AI سرور های ب.
+  type: vless
+  server: www.niniweblog.org
+  port: 82
+  uuid: ee8f86dd-66e5-42e6-b6a4-118164eac794
+  password: ee8f86dd-66e5-42e6-b6a4-118164eac794
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: tcp
+- name: 🇨🇦 سرور های ب
+  type: vless
+  server: 162.159.152.4
+  port: 2053
+  uuid: ec77b9ff-ba31-4b1d-8a81-ee9de133bcf0
+  password: ec77b9ff-ba31-4b1d-8a81-ee9de133bcf0
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: tcp
+- name: 🇨🇦 سرور های ب.
+  type: vless
+  server: 104.18.32.47
+  port: 443
+  uuid: a46a3035-8c34-43f8-b7d3-d4877a50c92e
+  password: a46a3035-8c34-43f8-b7d3-d4877a50c92e
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: tcp
+- name: 🇨🇦 dpkg-Fr33C
+  type: vless
+  server: 162.159.152.4
+  port: 443
+  uuid: 2cc02f50-530b-47e2-89a7-30025a978fc5
+  password: 2cc02f50-530b-47e2-89a7-30025a978fc5
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI ziem-Fr33C
+  type: vless
+  server: mci2.atliehsafa.ir
+  port: 443
+  uuid: 5985deab-e8cf-4228-af5f-a3ebcf648b23
+  password: 5985deab-e8cf-4228-af5f-a3ebcf648b23
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: xhttp
+- name: 🇨🇭 ✨ AI 5
+  type: vless
+  server: 5.182.36.56
+  port: 45886
+  uuid: 8338171d-2ea7-4015-bdea-492f3d5d4e60
+  password: 8338171d-2ea7-4015-bdea-492f3d5d4e60
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: yahoo.com
+  reality-opts:
+    public-key: zJeLZDPHoHMcAzBJh38tSavofNlkBrpADFx9jVVPil0
+    short-id: 94f9
+  client-fingerprint: chrome
+- name: 🏳️ ✨ AI Telegram v
+  type: vless
+  server: pqh29v3.globalfymain.com
+  port: 8880
+  uuid: 8dc7722c-2767-4eea-a28b-2f8daacc07e3
+  password: 8dc7722c-2767-4eea-a28b-2f8daacc07e3
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: grpc
+- name: 🇹🇷 ✨ AI BESTIIVPNB
+  type: vless
+  server: 45.12.143.191
+  port: 20329
+  uuid: e105e56a-5f81-41a2-ab44-bfffc9b00674
+  password: e105e56a-5f81-41a2-ab44-bfffc9b00674
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: yahoo.com
+  reality-opts:
+    public-key: Lj3MXlg16CTFHtU88acSS-ACfGnwJ_xkU6dC6k8OeDo
+    short-id: 4602ee9f9f36
+  client-fingerprint: chrome
+- name: 🇩🇪 planbnetvp
+  type: vless
+  server: 57.129.53.180
+  port: 23576
+  uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
+  password: 48ff2b70-e180-582f-8866-d9a2edeed5f5
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: fuck.rkn
+  reality-opts:
+    public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
+    short-id: '01'
+  client-fingerprint: chrome
+- name: 🇩🇪 BESTIIVPNB
+  type: vless
+  server: 188.34.193.153
+  port: 443
+  uuid: 309fa273-6579-4cb2-9143-7cad50401eba
+  password: 309fa273-6579-4cb2-9143-7cad50401eba
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: www.cloudflare.com
+  reality-opts:
+    public-key: gZGVp5PUdafgsmi1gawa1yLuha_XhXRc_W9SvPiGmTY
+    short-id: 7cad5040
+  client-fingerprint: chrome
+- name: '🇩🇪 HiByeVPNN '
+  type: vless
+  server: 91.107.173.252
+  port: 41647
+  uuid: e50fa46f-20c6-4c0d-fa0e-d9ffd92df36f
+  password: e50fa46f-20c6-4c0d-fa0e-d9ffd92df36f
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: grpc
+- name: 🇹🇷 ✨ AI BESTIIVPNB.
+  type: vless
+  server: 45.12.143.191
+  port: 20329
+  uuid: e105e56a-5f81-41a2-ab44-bfffc9b00674
+  password: e105e56a-5f81-41a2-ab44-bfffc9b00674
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: yahoo.com
+  reality-opts:
+    public-key: Lj3MXlg16CTFHtU88acSS-ACfGnwJ_xkU6dC6k8OeDo
+    short-id: 4602ee9f9f36
+  client-fingerprint: chrome
+- name: 🇲🇾 ✨ AI BESTIIVPNB
+  type: vless
+  server: 45.89.107.200
+  port: 8443
+  uuid: 309fa273-6579-4cb2-9143-7cad50401eba
+  password: 309fa273-6579-4cb2-9143-7cad50401eba
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: www.cloudflare.com
+  reality-opts:
+    public-key: gZGVp5PUdafgsmi1gawa1yLuha_XhXRc_W9SvPiGmTY
+    short-id: 7cad5040
+  client-fingerprint: chrome
+- name: 🇺🇸 Telegram v
+  type: vless
+  server: 15.204.97.149
+  port: 23576
+  uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
+  password: 48ff2b70-e180-582f-8866-d9a2edeed5f5
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: fuck.rkn
+  reality-opts:
+    public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
+    short-id: '01'
+  client-fingerprint: chrome
+- name: 🇳🇱 ✨ AI 6
+  type: vless
+  server: 43.250.54.155
+  port: 49000
+  uuid: 160e9c18-c548-42bf-9c00-905aed8ef96f
+  password: 160e9c18-c548-42bf-9c00-905aed8ef96f
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: grpc
+  servername: google.com
+  reality-opts:
+    public-key: 2K2NO2jXF45pA0-eUobqo-gnur61TadbWD4B93Zl_Vc
+    short-id: 170f8a2036
+  client-fingerprint: chrome
+- name: 🇳🇱 ✨ AI planbnetvp
+  type: vless
+  server: 43.250.54.155
+  port: 49000
+  uuid: 160e9c18-c548-42bf-9c00-905aed8ef96f
+  password: 160e9c18-c548-42bf-9c00-905aed8ef96f
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: grpc
+  servername: google.com
+  reality-opts:
+    public-key: 2K2NO2jXF45pA0-eUobqo-gnur61TadbWD4B93Zl_Vc
+    short-id: 170f8a2036
+  client-fingerprint: chrome
+- name: 🇩🇪 德国_0106091
+  type: vless
+  server: 57.129.53.180
+  port: 23576
+  uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
+  password: 48ff2b70-e180-582f-8866-d9a2edeed5f5
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: fuck.rkn
+  reality-opts:
+    public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
+    short-id: '01'
+  client-fingerprint: chrome
+- name: 🇺🇸 ✨ AI wwwv2nodes
+  type: vless
+  server: 45.82.251.98
+  port: 8880
+  uuid: 8dc7722c-2767-4eea-a28b-2f8daacc07e3
+  password: 8dc7722c-2767-4eea-a28b-2f8daacc07e3
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: grpc
+- name: 🇬🇷 ✨ AI BESTIIVPNB
+  type: vless
+  server: 94.131.8.19
+  port: 45448
+  uuid: 96fcf8cc-535d-46c4-b8f9-76058df48e3b
+  password: 96fcf8cc-535d-46c4-b8f9-76058df48e3b
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: yahoo.com
+  reality-opts:
+    public-key: MmEVCRy11fz67vYJQWyA2a_ZPMBzv2le2cus1XSSI0E
+    short-id: 958639bf55e679
+  client-fingerprint: chrome
+- name: 🏳️ ✨ AI WiFi-V2ray
+  type: vless
+  server: nasnet-146198073-direct.iranpress.co
+  port: 443
+  uuid: nasnet
+  password: nasnet
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+- name: 🇺🇸 ✨ AI Kia_Net
+  type: vless
+  server: 95.164.85.109
+  port: 59374
+  uuid: bfc78cd8-5951-4803-8d6c-4cedef8cd420
+  password: bfc78cd8-5951-4803-8d6c-4cedef8cd420
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: yahoo.com
+  reality-opts:
+    public-key: ZsswZuBV8bEGQWFrpShCilSytnDUj0kwHFhTSLXzOwc
+    short-id: d21e7c
+  client-fingerprint: chrome
+- name: 🇦🇹 ✨ AI Австрия-1
+  type: vless
+  server: 5.181.21.101
+  port: 4443
+  uuid: 3f688b2a-373a-4be1-846d-b159404b73b2
+  password: 3f688b2a-373a-4be1-846d-b159404b73b2
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: github.com
+  reality-opts:
+    public-key: 5XB_N3ATilH-6tp_MXht-84_y5YaJnx_Z7MbuY2otHE
+    short-id: aa7e96542880027a
+  client-fingerprint: chrome
+- name: 🇺🇸 ✨ AI США-2 Sora
+  type: vless
+  server: 103.35.190.51
+  port: 4443
+  uuid: 3f688b2a-373a-4be1-846d-b159404b73b2
+  password: 3f688b2a-373a-4be1-846d-b159404b73b2
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: github.com
+  reality-opts:
+    public-key: 5XB_N3ATilH-6tp_MXht-84_y5YaJnx_Z7MbuY2otHE
+    short-id: aa7e96542880027a
+  client-fingerprint: chrome
+- name: 🇱🇻 ✨ AI Telegram
+  type: vless
+  server: 176.120.67.77
+  port: 8443
+  uuid: d0dea598-9047-4567-a934-84c2797c0978
+  password: d0dea598-9047-4567-a934-84c2797c0978
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: ozon.ru
+  reality-opts:
+    public-key: 7HejPU15kdTl9QG_8AygEM3w0ythsbhG6q_SwUumyR0
+    short-id: f1071c148a5aefc4
+  client-fingerprint: chrome
+- name: 🇱🇻 ✨ AI openproxyl
+  type: vless
+  server: 176.120.67.95
+  port: 8443
+  uuid: d0dea598-9047-4567-a934-84c2797c0978
+  password: d0dea598-9047-4567-a934-84c2797c0978
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: ozon.ru
+  reality-opts:
+    public-key: 7HejPU15kdTl9QG_8AygEM3w0ythsbhG6q_SwUumyR0
+    short-id: f1071c148a5aefc4
+  client-fingerprint: chrome
+- name: '🏳️ ✨ AI Telegram  '
+  type: vless
+  server: chatgpt.com
+  port: 2053
+  uuid: 2dcfa7eb-170a-46c8-b367-ce68d86a03c2
+  password: 2dcfa7eb-170a-46c8-b367-ce68d86a03c2
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI تلگرام سرچ
+  type: vless
+  server: chatgpt.com
+  port: 2053
+  uuid: 062a230c-211d-4569-958d-dddf2c3aa613
+  password: 062a230c-211d-4569-958d-dddf2c3aa613
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇺🇸 ✨ AI FreakConfi
+  type: vless
+  server: 45.82.251.95
+  port: 8880
+  uuid: 8dc7722c-2767-4eea-a28b-2f8daacc07e3
+  password: 8dc7722c-2767-4eea-a28b-2f8daacc07e3
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: grpc
+- name: 🏳️ ✨ AI FreakConfi
+  type: vless
+  server: all.tellmethetrue.shop
+  port: 443
+  uuid: e4824193-4f54-453b-d037-88368e85ef0e
+  password: e4824193-4f54-453b-d037-88368e85ef0e
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: grpc
+- name: 🏳️ ✨ AI Telegram  .
+  type: vless
+  server: chatgpt.com
+  port: 443
+  uuid: c2ca41d6-a825-454b-abf6-e4a83d6df9c7
+  password: c2ca41d6-a825-454b-abf6-e4a83d6df9c7
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI Telegram  ..
+  type: vless
+  server: chatgpt.com
+  port: 443
+  uuid: 15fe9ff7-f48c-467c-b1b1-658c210ea01d
+  password: 15fe9ff7-f48c-467c-b1b1-658c210ea01d
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI NetAccount
+  type: vless
+  server: chatgpt.com
+  port: 443
+  uuid: 15fe9ff7-f48c-467c-b1b1-658c210ea01d
+  password: 15fe9ff7-f48c-467c-b1b1-658c210ea01d
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇨🇦 netshekan9
+  type: vless
+  server: 104.18.32.47
+  port: 443
+  uuid: 15331f4d-140a-4f1b-b4a1-0c5fe9140dc2
+  password: 15331f4d-140a-4f1b-b4a1-0c5fe9140dc2
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI netshekan9
+  type: vless
+  server: chatgpt.com
+  port: 443
+  uuid: 15331f4d-140a-4f1b-b4a1-0c5fe9140dc2
+  password: 15331f4d-140a-4f1b-b4a1-0c5fe9140dc2
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI vpnbaz  نت
+  type: vless
+  server: chatgpt.com
+  port: 443
+  uuid: c2ca41d6-a825-454b-abf6-e4a83d6df9c7
+  password: c2ca41d6-a825-454b-abf6-e4a83d6df9c7
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇨🇦 Alfred_Con
+  type: vless
+  server: 104.18.32.47
+  port: 443
+  uuid: 8c9b0290-c067-420b-db16-767bc97008a9
+  password: 8c9b0290-c067-420b-db16-767bc97008a9
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: '🇳🇱 ✨ AI Telegram  '
+  type: vless
+  server: 144.124.228.129
+  port: 4443
+  uuid: 3f688b2a-373a-4be1-846d-b159404b73b2
+  password: 3f688b2a-373a-4be1-846d-b159404b73b2
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: github.com
+  reality-opts:
+    public-key: 5XB_N3ATilH-6tp_MXht-84_y5YaJnx_Z7MbuY2otHE
+    short-id: aa7e96542880027a
+  client-fingerprint: chrome
+- name: 🇳🇱 ✨ AI Telegram  .
+  type: vless
+  server: 45.87.154.132
+  port: 4443
+  uuid: 3f688b2a-373a-4be1-846d-b159404b73b2
+  password: 3f688b2a-373a-4be1-846d-b159404b73b2
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: github.com
+  reality-opts:
+    public-key: 5XB_N3ATilH-6tp_MXht-84_y5YaJnx_Z7MbuY2otHE
+    short-id: aa7e96542880027a
+  client-fingerprint: chrome
+- name: 🇳🇱 ✨ AI Telegram  ..
+  type: vless
+  server: 146.103.113.79
+  port: 4443
+  uuid: 3f688b2a-373a-4be1-846d-b159404b73b2
+  password: 3f688b2a-373a-4be1-846d-b159404b73b2
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: github.com
+  reality-opts:
+    public-key: 5XB_N3ATilH-6tp_MXht-84_y5YaJnx_Z7MbuY2otHE
+    short-id: aa7e96542880027a
+  client-fingerprint: chrome
+- name: 🇳🇱 ✨ AI Telegram  ...
+  type: vless
+  server: 144.124.240.217
+  port: 4443
+  uuid: 3f688b2a-373a-4be1-846d-b159404b73b2
+  password: 3f688b2a-373a-4be1-846d-b159404b73b2
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: github.com
+  reality-opts:
+    public-key: 5XB_N3ATilH-6tp_MXht-84_y5YaJnx_Z7MbuY2otHE
+    short-id: aa7e96542880027a
+  client-fingerprint: chrome
+- name: 🇳🇱 ✨ AI Telegram  ....
+  type: vless
+  server: 5.129.231.109
+  port: 4443
+  uuid: 3f688b2a-373a-4be1-846d-b159404b73b2
+  password: 3f688b2a-373a-4be1-846d-b159404b73b2
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: github.com
+  reality-opts:
+    public-key: 5XB_N3ATilH-6tp_MXht-84_y5YaJnx_Z7MbuY2otHE
+    short-id: aa7e96542880027a
+  client-fingerprint: chrome
+- name: 🇳🇱 ✨ AI Telegram  .....
+  type: vless
+  server: 72.56.92.27
+  port: 4443
+  uuid: 3f688b2a-373a-4be1-846d-b159404b73b2
+  password: 3f688b2a-373a-4be1-846d-b159404b73b2
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: github.com
+  reality-opts:
+    public-key: 5XB_N3ATilH-6tp_MXht-84_y5YaJnx_Z7MbuY2otHE
+    short-id: aa7e96542880027a
+  client-fingerprint: chrome
+- name: 🏳️ ✨ AI Telegram  ...
+  type: vless
+  server: chatgpt.com
+  port: 443
+  uuid: 58a38e3c-18b3-4830-b00b-6c5cce81c41a
+  password: 58a38e3c-18b3-4830-b00b-6c5cce81c41a
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇺🇸 BESTIIVPNB
+  type: vless
+  server: 8.6.112.0
+  port: 2053
+  uuid: 827c5131-6703-4930-a75f-b7f6d4c1938f
+  password: 827c5131-6703-4930-a75f-b7f6d4c1938f
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI USA Cloudf
+  type: vless
+  server: hell-tawana.lookanet.codes
+  port: 2053
+  uuid: 89be0078-b1f2-4fd8-8e3d-a2065df38853
+  password: 89be0078-b1f2-4fd8-8e3d-a2065df38853
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇺🇸 V2rayMiner
+  type: vless
+  server: 8.6.112.0
+  port: 443
+  uuid: e258977b-e413-4718-a3af-02d75492c349
+  password: e258977b-e413-4718-a3af-02d75492c349
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇺🇸 V2rayMiner.
+  type: vless
+  server: 8.6.112.0
+  port: 443
+  uuid: d577ad65-4e97-4b4f-8adf-29340520318c
+  password: d577ad65-4e97-4b4f-8adf-29340520318c
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇺🇸 V2rayMiner..
+  type: vless
+  server: 8.6.112.0
+  port: 443
+  uuid: 495c0dad-3268-4470-ac57-887c5089db0d
+  password: 495c0dad-3268-4470-ac57-887c5089db0d
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI USA Cloudf.
+  type: vless
+  server: cdn-ngmy.vip.tehv2.ir
+  port: 2053
+  uuid: 89be0078-b1f2-4fd8-8e3d-a2065df38853
+  password: 89be0078-b1f2-4fd8-8e3d-a2065df38853
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇺🇸 BESTIIVPNB.
+  type: vless
+  server: 8.6.112.0
+  port: 443
+  uuid: 0f811ad6-6af9-4959-8394-8ba31f738d9d
+  password: 0f811ad6-6af9-4959-8394-8ba31f738d9d
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇺🇸 𝐈𝐑𝐂𝐏  Ln2R
+  type: vless
+  server: 8.6.112.0
+  port: 443
+  uuid: 22e7f0d3-8d3b-40c7-a1c5-8a912f6a16b3
+  password: 22e7f0d3-8d3b-40c7-a1c5-8a912f6a16b3
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: '🇺🇸 Telegram  '
+  type: vless
+  server: 8.6.112.0
+  port: 2096
+  uuid: f0693080-e004-4baf-a1e9-258025a134a7
+  password: f0693080-e004-4baf-a1e9-258025a134a7
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇺🇸 Telegram  .
+  type: vless
+  server: 8.6.112.0
+  port: 443
+  uuid: 0f811ad6-6af9-4959-8394-8ba31f738d9d
+  password: 0f811ad6-6af9-4959-8394-8ba31f738d9d
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇺🇸 Telegram  ..
+  type: vless
+  server: 8.6.112.0
+  port: 443
+  uuid: 22e7f0d3-8d3b-40c7-a1c5-8a912f6a16b3
+  password: 22e7f0d3-8d3b-40c7-a1c5-8a912f6a16b3
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇺🇸 Volt2Ray
+  type: vless
+  server: 8.6.112.0
+  port: 2053
+  uuid: a5f130ee-c537-48fe-aaf2-d7c1c17d0b96
+  password: a5f130ee-c537-48fe-aaf2-d7c1c17d0b96
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI Telegram  ....
+  type: vless
+  server: dns.ownlink.pro
+  port: 443
+  uuid: 7abc75eb-b58b-4e28-af59-20f41bdf7a2a
+  password: 7abc75eb-b58b-4e28-af59-20f41bdf7a2a
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI Telegram  .....
+  type: vless
+  server: p1.sarvderakht.ir
+  port: 2087
+  uuid: 3c143a25-6184-419f-a2a6-7933375a1f7f
+  password: 3c143a25-6184-419f-a2a6-7933375a1f7f
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI -X_Her0
+  type: vless
+  server: star0.kharabetam.de
+  port: 2053
+  uuid: '%40X_Her0%40X_Her0%40X_Her0%40X_Her0'
+  password: '%40X_Her0%40X_Her0%40X_Her0%40X_Her0'
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI BESTIIVPNB
+  type: vless
+  server: dns.ownlink.pro
+  port: 443
+  uuid: 7abc75eb-b58b-4e28-af59-20f41bdf7a2a
+  password: 7abc75eb-b58b-4e28-af59-20f41bdf7a2a
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI ProxyVPN11
+  type: vless
+  server: dns.ownlink.pro
+  port: 443
+  uuid: 7abc75eb-b58b-4e28-af59-20f41bdf7a2a
+  password: 7abc75eb-b58b-4e28-af59-20f41bdf7a2a
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI BESTIIVPNB.
+  type: vless
+  server: cfcdn.zopli.ir
+  port: 443
+  uuid: 99351e9e-ea57-4b85-9985-072ab7512cfb
+  password: 99351e9e-ea57-4b85-9985-072ab7512cfb
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: '🇨🇦 Telegram  '
+  type: vless
+  server: 104.18.32.47
+  port: 2053
+  uuid: e3d97326-0914-4269-b11c-65840992b600
+  password: e3d97326-0914-4269-b11c-65840992b600
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇨🇦 BESTIIVPNB
+  type: vless
+  server: 162.159.152.4
+  port: 443
+  uuid: 2cc02f50-530b-47e2-89a7-30025a978fc5
+  password: 2cc02f50-530b-47e2-89a7-30025a978fc5
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇨🇦 httpstmeFi
+  type: vless
+  server: 162.159.152.4
+  port: 2096
+  uuid: 1d819aab-2593-40e0-a537-f1b48a6fd069
+  password: 1d819aab-2593-40e0-a537-f1b48a6fd069
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: '🇺🇸 Blank_Vpn '
+  type: vless
+  server: 8.6.112.0
+  port: 2053
+  uuid: a5f130ee-c537-48fe-aaf2-d7c1c17d0b96
+  password: a5f130ee-c537-48fe-aaf2-d7c1c17d0b96
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇨🇦 tmeFNETPRO
+  type: vless
+  server: 162.159.152.4
+  port: 443
+  uuid: 7b617bbb-8ff7-470e-b23b-339d48a2b8c3
+  password: 7b617bbb-8ff7-470e-b23b-339d48a2b8c3
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇨🇦 ProxyVPN11
+  type: vless
+  server: 162.159.152.4
+  port: 443
+  uuid: 43eb6b49-8d34-460f-b8b3-a81f7fd4a5f1
+  password: 43eb6b49-8d34-460f-b8b3-a81f7fd4a5f1
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI G
+  type: vless
+  server: deu196.unboundaccess.org
+  port: 443
+  uuid: f788e136-b245-4617-9d41-b505c7f41ef9
+  password: f788e136-b245-4617-9d41-b505c7f41ef9
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: www.bing.com
+  reality-opts:
+    public-key: BhTJ3phnq-Z-10aFKSsj1lzhA8mULR4L6leE4-0WTAs
+    short-id: ''
+  client-fingerprint: chrome
+- name: 🇨🇦 Paris
+  type: vless
+  server: 104.26.6.89
+  port: 8443
+  uuid: e999db7a-1b17-4da6-bc37-c9fa24af2e93
+  password: e999db7a-1b17-4da6-bc37-c9fa24af2e93
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI United Kin
+  type: vless
+  server: ipw.gfdv54cvghhgfhgj-njhgj64.info
+  port: 443
+  uuid: e999db7a-1b17-4da6-bc37-c9fa24af2e93
+  password: e999db7a-1b17-4da6-bc37-c9fa24af2e93
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇨🇦 King
+  type: vless
+  server: 104.18.35.85
+  port: 443
+  uuid: 060a8fe8-7175-4ded-94a5-d9808bc645b6
+  password: 060a8fe8-7175-4ded-94a5-d9808bc645b6
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇨🇦 DE
+  type: vless
+  server: 172.66.40.99
+  port: 443
+  uuid: 0261c8f9-413a-455b-942b-3713c6b0084a
+  password: 0261c8f9-413a-455b-942b-3713c6b0084a
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇨🇦 نوه هیتلر
+  type: vless
+  server: 104.21.36.57
+  port: 443
+  uuid: 0cc731b9-0375-4590-aeaa-7e2611a149fe
+  password: 0cc731b9-0375-4590-aeaa-7e2611a149fe
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇺🇸 ✨ AI United Sta
+  type: vless
+  server: 45.82.251.114
+  port: 8880
+  uuid: e4824193-4f54-453b-d037-88368e85ef0e
+  password: e4824193-4f54-453b-d037-88368e85ef0e
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: grpc
+- name: 🇱🇮 ✨ AI Liechtenst
+  type: vless
+  server: 45.15.167.13
+  port: 443
+  uuid: 1lpxy6haqm
+  password: 1lpxy6haqm
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+- name: 🏳️ ✨ AI Germany
+  type: vless
+  server: sweet-combination.seotoolsforyou.co.uk
+  port: 80
+  uuid: 05020a61-3c0c-4ead-b256-7851ff905a75
+  password: 05020a61-3c0c-4ead-b256-7851ff905a75
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: ws
+- name: 🏳️ ✨ AI PC US
+  type: vless
+  server: ovhwuxian.pai50288.uk
+  port: 8443
+  uuid: 57ba2ab1-a283-42eb-82ee-dc3561a805b8
+  password: 57ba2ab1-a283-42eb-82ee-dc3561a805b8
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇳🇱 ✨ AI NL мя_αʟσп
+  type: vless
+  server: 192.142.53.38
+  port: 37321
+  uuid: 4914cac8-d4f7-4ffe-9c58-1117c9cb1887
+  password: 4914cac8-d4f7-4ffe-9c58-1117c9cb1887
+  udp: true
+  skip-cert-verify: true
+  tls: false
+  network: grpc
+- name: 🇨🇦 US
+  type: vless
+  server: 104.21.3.219
+  port: 8443
+  uuid: 57ba2ab1-a283-42eb-82ee-dc3561a805b8
+  password: 57ba2ab1-a283-42eb-82ee-dc3561a805b8
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇺🇸 ✨ AI New York
+  type: vless
+  server: 5.181.171.2
+  port: 443
+  uuid: a87bf8a2-17a4-3054-b51e-876b5f1d0f24
+  password: a87bf8a2-17a4-3054-b51e-876b5f1d0f24
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: speed.cloudflare.com
+  reality-opts:
+    public-key: YNGotlyAx3ELUmi4lxOUjiEDmibqf1pPUTE9o3YYT2Y
+    short-id: ''
+  client-fingerprint: chrome
+- name: 🇺🇸 ✨ AI USA III мя
+  type: vless
+  server: 5.181.171.2
+  port: 443
+  uuid: a87bf8a2-17a4-3054-b51e-876b5f1d0f24
+  password: a87bf8a2-17a4-3054-b51e-876b5f1d0f24
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: speed.cloudflare.com
+  reality-opts:
+    public-key: YNGotlyAx3ELUmi4lxOUjiEDmibqf1pPUTE9o3YYT2Y
+    short-id: ''
+  client-fingerprint: chrome
+- name: 🇩🇪 DE by onec
+  type: vless
+  server: 91.99.168.213
+  port: 443
+  uuid: 14eba471-4623-4ed1-b937-f5b2206749bf
+  password: 14eba471-4623-4ed1-b937-f5b2206749bf
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: grpc
+  servername: miro.com
+  reality-opts:
+    public-key: UrGT7bAn2UND3kx81QHACf_6qReN8V6_o70kZerONk4
+    short-id: 1c547814
+  client-fingerprint: chrome
+- name: 🏳️ ✨ AI The Nether
+  type: vless
+  server: ipw.gfdv54cvghhgfhgj-njhgj64.info
+  port: 443
+  uuid: e999db7a-1b17-4da6-bc37-c9fa24af2e93
+  password: e999db7a-1b17-4da6-bc37-c9fa24af2e93
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🏳️ ✨ AI Ultra US I
+  type: vless
+  server: ovhwuxian.pai50288.uk
+  port: 8443
+  uuid: 57ba2ab1-a283-42eb-82ee-dc3561a805b8
+  password: 57ba2ab1-a283-42eb-82ee-dc3561a805b8
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
+- name: 🇷🇺 Ultra NL I
+  type: vless
+  server: 80.249.131.7
+  port: 443
+  uuid: d4e4c02a-d969-47a6-ba0f-3d433fdac206
+  password: d4e4c02a-d969-47a6-ba0f-3d433fdac206
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: wa.sfasti.ru
+  reality-opts:
+    public-key: J_jQq9-SWQZjiMhuPaFV7V2MaJ4pkKgVRaz7x6tmvy8
+    short-id: 16895459a2c7768d
+  client-fingerprint: chrome
+- name: 🇺🇸 ✨ AI Russia X
+  type: vless
+  server: 5.181.171.2
+  port: 443
+  uuid: 8e6acce9-8b56-7190-d491-7d84f8189e26
+  password: 8e6acce9-8b56-7190-d491-7d84f8189e26
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: speed.cloudflare.com
+  reality-opts:
+    public-key: YNGotlyAx3ELUmi4lxOUjiEDmibqf1pPUTE9o3YYT2Y
+    short-id: ''
+  client-fingerprint: chrome
+- name: 🇰🇿 ✨ AI Kazakhstan
+  type: vless
+  server: 176.120.72.63
+  port: 38339
+  uuid: 481c5606-b586-44d7-bc2e-d8ef30d67f62
+  password: 481c5606-b586-44d7-bc2e-d8ef30d67f62
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+  servername: dl.google.com
+  reality-opts:
+    public-key: o0MFuznHh_Wztg0FTAMhFXm3hjAqOJAJIIVNn-_A9WA
+    short-id: e16883e511
+  client-fingerprint: chrome
 - name: 🇩🇪 23shadowso
   type: ss
   server: 135.125.247.29
@@ -1576,8 +2626,8 @@ proxies:
   type: ss
   server: 185.156.110.92
   port: 443
-  cipher: chacha20-ietf-poly1305
-  password: gXOXk2FJwsz9P6nXIICuDNOqF9gWX1dn
+  cipher: Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpnWE9YazJGSndzejlQNm5YSUlDdUROT3FGOWdXWDFkbg
+  password: ''
   udp: true
 - name: 🇺🇸 23shadowso
   type: ss
@@ -1590,15 +2640,15 @@ proxies:
   type: ss
   server: 193.203.203.66
   port: 443
-  cipher: chacha20-ietf-poly1305
-  password: S6jUK9Fw5fMHgNqlqXObHZWv8Tf4nEkm
+  cipher: Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpTNmpVSzlGdzVmTUhnTnFscVhPYkhaV3Y4VGY0bkVrbQ
+  password: ''
   udp: true
 - name: 🇭🇰 23shadowso
   type: ss
   server: 194.246.114.101
   port: 443
-  cipher: chacha20-ietf-poly1305
-  password: HaNqw9pIE4jcx98sg7UQgHeGNTM4R2pk
+  cipher: Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpIYU5xdzlwSUU0amN4OThzZzdVUWdIZUdOVE00UjJwaw
+  password: ''
   udp: true
 - name: 🇩🇪 23shadowso.
   type: ss
@@ -1618,8 +2668,8 @@ proxies:
   type: ss
   server: de1-nv.jugploer.icu
   port: 2050
-  cipher: chacha20-ietf-poly1305
-  password: hkeeSq3gP7nQg3PFbu_QGfGvuWJ-ydAU
+  cipher: Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpoa2VlU3EzZ1A3blFnM1BGYnVfUUdmR3Z1V0oteWRBVQ
+  password: ''
   udp: true
 - name: 🏳️ 22shadowso.
   type: ss
@@ -1632,8 +2682,8 @@ proxies:
   type: ss
   server: 149.22.87.240
   port: 443
-  cipher: aes-128-gcm
-  password: shadowsocks
+  cipher: YWVzLTEyOC1nY206c2hhZG93c29ja3M
+  password: ''
   udp: true
 - name: 🇬🇧 21shadowso
   type: ss
@@ -1646,8 +2696,8 @@ proxies:
   type: ss
   server: 107.174.114.71
   port: 443
-  cipher: chacha20-ietf-poly1305
-  password: 595HLF3fHUuw0McM51tpvPygSIB1uf4D
+  cipher: Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTo1OTVITEYzZkhVdXcwTWNNNTF0cHZQeWdTSUIxdWY0RA
+  password: ''
   udp: true
 - name: 🇳🇱 21shadowso
   type: ss
@@ -1698,7 +2748,7 @@ proxies:
   skip-cert-verify: true
   tls: false
   network: tcp
-- name: 🇦🇪 ✨ AI 15oneclick
+- name: 🇦🇪 15oneclick
   type: vmess
   server: 89.31.120.192
   port: 443
@@ -1806,7 +2856,7 @@ proxies:
   cipher: aes-256-cfb
   password: Xn8jKdmDM00IeO%#$#fJAMtsEAEUOpH/YWYtYqDFnT0SV
   udp: true
-- name: 🏳️ ✨ AI ProxyVPN11
+- name: 🏳️ ✨ AI ProxyVPN11.
   type: vmess
   server: chatgpt.com
   port: 2083
@@ -1821,8 +2871,8 @@ proxies:
   type: ss
   server: 217.30.10.18
   port: 9006
-  cipher: aes-256-cfb
-  password: FAdUvMJUq5vDgKEq
+  cipher: YWVzLTI1Ni1jZmI6RkFkVXZNSlVxNXZEZ0tFcQ
+  password: ''
   udp: true
 - name: 🇻🇳 ...
   type: ss
@@ -1870,17 +2920,6 @@ proxies:
   cipher: chacha20-ietf-poly1305
   password: f8f7aCzcPKbsF8p3
   udp: true
-- name: 🇫🇷 hichkas mc
-  type: vmess
-  server: 51.77.200.137
-  port: 443
-  uuid: b3db746a-c63a-4b57-9d61-9bdec6d08141
-  alterId: 0
-  cipher: auto
-  udp: true
-  tls: true
-  skip-cert-verify: true
-  network: ws
 - name: '🇭🇰 '
   type: ss
   server: 203.23.128.33
@@ -1888,3 +2927,329 @@ proxies:
   cipher: chacha20-ietf-poly1305
   password: f8f7aCzcPKbsF8p3
   udp: true
+- name: 🏳️ ✨ AI سرور های ب..
+  type: vmess
+  server: vmgr7-multi.multiserver-adelshoop.com
+  port: 80
+  uuid: 2a473732-dd90-4833-84f2-3f3aefee9345
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: ws
+- name: 🏳️ ✨ AI سرور های ب...
+  type: vmess
+  server: vmgr8-multi.multiserver-adelshoop.com
+  port: 80
+  uuid: 2a473732-dd90-4833-84f2-3f3aefee9345
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: ws
+- name: 🏳️ ✨ AI سرور های ب....
+  type: vmess
+  server: tr4-gaming-multi.multiserver-adelshoop.com
+  port: 80
+  uuid: 2a473732-dd90-4833-84f2-3f3aefee9345
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: tcp
+- name: 🏳️ ✨ AI سرور های ب.....
+  type: vmess
+  server: tr2-static-ip-multi.multiserver-adelshoop.com
+  port: 80
+  uuid: 2a473732-dd90-4833-84f2-3f3aefee9345
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: tcp
+- name: 🏳️ ✨ AI V2rayAlpha
+  type: vmess
+  server: xn--ukm-hp7krmqud11iebf30l6ufa39dwn.GAmesWINers.COM
+  port: 1007
+  uuid: 4d4edea2-5602-4d15-98f4-c0f8839a6316
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: tcp
+- name: 🇨🇦 CA-5179102
+  type: vmess
+  server: 51.79.102.253
+  port: 80
+  uuid: 58fe1542-5290-40ad-815a-77707a81afe5
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: ws
+- name: 🏳️ ✨ AI RELAY-1041
+  type: vmess
+  server: hgtrojan.zabc.net
+  port: 2083
+  uuid: e6395c20-4571-4b34-d6b1-55a5d36e49ea
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: true
+  skip-cert-verify: true
+  network: ws
+- name: 🇨🇦 17oneclick
+  type: vmess
+  server: 51.79.103.76
+  port: 80
+  uuid: 58fe1542-5290-40ad-815a-77707a81afe5
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: ws
+- name: 🇺🇸 ✨ AI US   VMESS
+  type: vmess
+  server: 209.126.84.189
+  port: 443
+  uuid: 2c981164-9b93-4bca-94ff-b78d3f8498d7
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: ws
+- name: 🇨🇦 CA-5179102.
+  type: vmess
+  server: 51.79.102.253
+  port: 80
+  uuid: 58fe1542-5290-40ad-815a-77707a81afe5
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: ws
+- name: 🇨🇦 CA-1523541
+  type: vmess
+  server: 15.235.41.200
+  port: 80
+  uuid: 58fe1542-5290-40ad-815a-77707a81afe5
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: ws
+- name: 🇺🇸 ✨ AI US-1493023
+  type: vmess
+  server: 149.30.232.103
+  port: 18393
+  uuid: 2c1807ce-6a63-4451-9add-a778d2507160
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: ws
+- name: 🇨🇳 89oneclick
+  type: vmess
+  server: 183.236.51.36
+  port: 59003
+  uuid: 418048af-a293-4b99-9b0c-98ca3580dd24
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: tcp
+- name: 🇺🇸 ✨ AI 83oneclick
+  type: vmess
+  server: 165.140.216.141
+  port: 443
+  uuid: e7d72a8d-26f2-4b54-b366-0c43e0bcba7d
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: tcp
+- name: 🇨🇦 CA-1523541.
+  type: vmess
+  server: 15.235.41.200
+  port: 80
+  uuid: 58fe1542-5290-40ad-815a-77707a81afe5
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: ws
+- name: 🇺🇸 ✨ AI US-1493023.
+  type: vmess
+  server: 149.30.232.103
+  port: 18393
+  uuid: 2c1807ce-6a63-4451-9add-a778d2507160
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: ws
+- name: 🏳️ ✨ AI RELAY-1041.
+  type: vmess
+  server: hgtrojan.zabc.net
+  port: 2083
+  uuid: e6395c20-4571-4b34-d6b1-55a5d36e49ea
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: true
+  skip-cert-verify: true
+  network: ws
+- name: 🇨🇦 17oneclick.
+  type: vmess
+  server: 51.79.103.76
+  port: 80
+  uuid: 58fe1542-5290-40ad-815a-77707a81afe5
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: ws
+- name: 🇫🇷 ✨ AI 2qfrmk3l
+  type: vmess
+  server: 217.69.5.32
+  port: 443
+  uuid: ec4c349c-b3c6-4cff-be63-01eaad1dc098
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: tcp
+- name: 🇫🇷 ✨ AI BESTIIVPNB
+  type: vmess
+  server: 217.69.5.32
+  port: 443
+  uuid: ec4c349c-b3c6-4cff-be63-01eaad1dc098
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: tcp
+- name: 🇨🇦 BESTIIVPNB.
+  type: vmess
+  server: 15.235.41.200
+  port: 80
+  uuid: 58fe1542-5290-40ad-815a-77707a81afe5
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: ws
+- name: 🇨🇦 Telegram v
+  type: vmess
+  server: 172.67.204.84
+  port: 8080
+  uuid: nasnet
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: ws
+- name: 🇺🇸 ✨ AI V2raysColl
+  type: vmess
+  server: 47.251.91.241
+  port: 42899
+  uuid: 0925b355-2bcd-4eae-9720-d2709e4f7e36
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: tcp
+- name: 🏳️ ✨ AI Pruoxyi
+  type: vmess
+  server: chatgpt.com
+  port: 443
+  uuid: 0757c6cf-815c-444f-8ea7-5a70c07a1a73
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: true
+  skip-cert-verify: true
+  network: httpupgrade
+- name: 🇨🇦 mehrosabor
+  type: vmess
+  server: 104.18.32.47
+  port: 443
+  uuid: 52c7f779-2cbc-4ec9-d4eb-7f62964e4a4e
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: true
+  skip-cert-verify: true
+  network: ws
+- name: 🇹🇷 ✨ AI V2raysColl
+  type: vmess
+  server: 45.89.52.207
+  port: 39651
+  uuid: ac4c12c5-45f2-4398-a718-9983941ede2b
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  skip-cert-verify: true
+  network: tcp
+- name: 🏳️ ✨ AI Telegram  ......
+  type: vmess
+  server: chatgpt.com
+  port: 2087
+  uuid: 4f71c836-7306-4111-a527-8ccd0346212d
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: true
+  skip-cert-verify: true
+  network: ws
+- name: 🇨🇦 Canada
+  type: vmess
+  server: 15.235.83.228
+  port: 443
+  uuid: 03fcc618-b93d-6796-6aed-8a38c975d581
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: true
+  skip-cert-verify: true
+  network: ws
+- name: 🇳🇴 ✨ AI Kia_Net
+  type: trojan
+  server: 80.173.231.254
+  port: 12420
+  password: wp9IsiY82uQhcmgNC1eoBM
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: tcp
+- name: 🇨🇦 Telegram
+  type: trojan
+  server: 104.18.32.47
+  port: 443
+  password: humanity
+  udp: true
+  skip-cert-verify: true
+  tls: true
+  network: ws
