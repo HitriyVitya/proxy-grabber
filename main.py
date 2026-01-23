@@ -21,9 +21,9 @@ EXTERNAL_SUBS = [
     "https://raw.githubusercontent.com/LonUp/NodeList/main/NodeList.txt"
 ]
 
-MAX_TOTAL_ALIVE = 1000 # Оставляем ровно 1000 лучших
-TIMEOUT = 1.0          # Жёсткий отбор
-CONCURRENCY_LIMIT = 100
+MAX_TOTAL_ALIVE = 1000
+TIMEOUT = 1.2 # Чуть больше времени на «подумать»
+CONCURRENCY_LIMIT = 50 # Уменьшил нагрузку, чтобы не было ложных срабатываний
 
 # --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 
@@ -42,28 +42,38 @@ def get_flag(code):
 def get_ip_info(ips):
     if not ips: return {}
     ip_map = {}
-    print(f"🌍 GeoIP для {len(ips)} IP...")
+    print(f"🌍 GeoIP Анализ...")
     for i in range(0, len(ips), 100):
         batch = ips[i:i+100]
         try:
             r = requests.post("http://ip-api.com/batch", json=[{"query": x, "fields": "countryCode,isp"} for x in batch], timeout=15)
             for idx, res in enumerate(r.json()):
                 ip_map[batch[idx]] = {'c': res.get('countryCode', ''), 'i': res.get('isp', '').lower()}
-            time.sleep(1.1)
+            time.sleep(1.2)
         except: pass
     return ip_map
 
 async def check_latency(ip, port, sem):
-    """Возвращает время отклика в мс или None"""
+    """Возвращает честный пинг или None"""
     async with sem:
-        start_time = time.time()
         try:
+            start = time.time()
+            # Открываем соединение
             conn = asyncio.open_connection(ip, port)
-            _, writer = await asyncio.wait_for(conn, timeout=TIMEOUT)
-            latency = int((time.time() - start_time) * 1000)
+            reader, writer = await asyncio.wait_for(conn, timeout=TIMEOUT)
+            
+            # ВАЖНО: Если соединение открылось подозрительно быстро (меньше 10мс),
+            # скорее всего это мгновенный сброс или ошибка.
+            lat = int((time.time() - start) * 1000)
+            
+            # Попробуем подождать чуть-чуть, не закроется ли оно само
+            await asyncio.sleep(0.05)
+            
             writer.close()
             await writer.wait_closed()
-            return latency
+            
+            if lat < 10: return None # Отсекаем фейковые 1мс
+            return lat
         except:
             return None
 
@@ -87,6 +97,7 @@ def get_links():
     seen = set(); links = []
     reg = re.compile(r'(?:vless|vmess|ss|ssr|trojan|hy2|hysteria|tuic)://[^\s<"\'\)]+')
     head = {'User-Agent': 'Mozilla/5.0'}
+    # Собираем ТГ
     for c in CHANNELS:
         try:
             r = requests.get(f"https://t.me/s/{c}", headers=head, timeout=10)
@@ -94,6 +105,7 @@ def get_links():
                 cl = l.strip().split('<')[0].split('"')[0].split("'")[0]
                 if cl not in seen: seen.add(cl); links.append(cl)
         except: pass
+    # Собираем Внешние
     for url in EXTERNAL_SUBS:
         try:
             r = requests.get(url, headers=head, timeout=15); text = r.text
@@ -109,10 +121,11 @@ def get_links():
 
 def link_to_clash(link, ip, latency, info):
     country = info.get('c', ''); isp = info.get('i', ''); flag = get_flag(country)
-    bad = ['amazon','aws','google','oracle','azure','digitalocean','hetzner','cloudflare','vultr']
+    bad = ['amazon','aws','google','oracle','azure','digitalocean','hetzner','cloudflare','vultr','linode','m247','akamai','fastly']
     is_ai = country not in ['RU','BY','CN','IR','KP','SY'] and not any(w in isp for w in bad) and not link.startswith("ss://")
-    # Формат имени: [Флаг] [AI] [Пинг] [Короткий IP]
-    name = f"{flag}{' ✨ AI' if is_ai else ''} {latency}ms | {ip.split('.')[-1]}"
+    
+    # Сверх-короткое имя для FlClash
+    name = f"{flag}{'✨' if is_ai else ''} {latency}ms | {ip.split('.')[-1]}"
 
     try:
         if link.startswith("vmess://"):
@@ -123,7 +136,7 @@ def link_to_clash(link, ip, latency, info):
             obj = {'name': name, 'type': tp, 'server': p.hostname, 'port': p.port, 'uuid': p.username or p.password, 'password': p.username or p.password, 'udp': True, 'skip-cert-verify': True, 'tls': q.get('security',[''])[0] in ['tls','reality'], 'network': q.get('type',['tcp'])[0]}
             if tp == 'trojan' and 'uuid' in obj: del obj['uuid']
             if q.get('security',[''])[0] == 'reality':
-                obj['servername'] = q.get('sni',[''])[0]; obj['reality-opts'] = {'public-key': q.get('pbk',[''])[0], 'short-id': q.get('sid',[''])[0]}; obj['client-fingerprint'] = 'chrome'
+                obj['servername'] = q.get('sni',[''])[0]; obj['reality-opts'] = {'public-key': q.get('pbk',[''])[0], 'short-id': q.get('sid', [''])[0]}; obj['client-fingerprint'] = 'chrome'
             return obj
         if link.startswith("ss://"):
             main = link.split("#")[0].replace("ss://", "")
@@ -140,7 +153,7 @@ def link_to_clash(link, ip, latency, info):
 
 async def main_logic():
     raw = get_links()
-    print(f"🧐 Найдено {len(raw)} ссылок. Замеряем пинг...")
+    print(f"🧐 Найдено {len(raw)} ссылок. Замеряем...")
     sem = asyncio.Semaphore(CONCURRENCY_LIMIT)
     
     tasks = []
@@ -153,17 +166,18 @@ async def main_logic():
         lat = await check_latency(ip, port, sem)
         return (link, ip, lat) if lat is not None else None
 
-    # Прозваниваем всех
+    # Перемешиваем перед проверкой
+    import random; random.shuffle(tasks)
+    
     results = await asyncio.gather(*(verify(x) for x in tasks))
-    # Фильтруем тех, кто ответил
     alive = [r for r in results if r is not None]
     
-    # СОРТИРОВКА ПО ПИНГУ (от меньшего к большему)
+    # СОРТИРУЕМ ПО ПИНГУ (самые быстрые в начале)
     alive.sort(key=lambda x: x[2])
     
-    # Берем ТОП-1000
+    # Оставляем топ
     top_alive = alive[:MAX_TOTAL_ALIVE]
-    print(f"✅ Живых: {len(alive)}. В работу берем {len(top_alive)} самых быстрых.")
+    print(f"✅ Живых: {len(alive)}. Берем ТОП-{len(top_alive)} лучших.")
     
     info_map = get_ip_info([x[1] for x in top_alive])
     
@@ -171,18 +185,14 @@ async def main_logic():
     for l, ip, lat in top_alive:
         obj = link_to_clash(l, ip, lat, info_map.get(ip, {}))
         if obj:
-            # Делаем имена уникальными
-            base_name = obj['name']
-            counter = 1
-            while any(p['name'] == obj['name'] for p in clash_list):
-                obj['name'] = f"{base_name} ({counter})"
-                counter += 1
+            # Уникальность имен
+            while any(p['name'] == obj['name'] for p in clash_list): obj['name'] += " "
             clash_list.append(obj); final_links.append(l)
 
     with open("list.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_links))
     with open("sub.txt", "w", encoding="utf-8") as f: f.write(base64.b64encode("\n".join(final_links).encode()).decode())
     with open("proxies.yaml", "w", encoding="utf-8") as f: yaml.dump({'proxies': clash_list}, f, allow_unicode=True, sort_keys=False)
-    print(f"🎉 Готово! Самый быстрый сервер: {top_alive[0][2]}ms")
+    print(f"🎉 Готово!")
 
 if __name__ == "__main__":
     asyncio.run(main_logic())
