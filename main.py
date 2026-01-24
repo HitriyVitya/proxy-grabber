@@ -5,25 +5,31 @@ import json
 import asyncio
 import time
 from urllib.parse import urlparse, unquote, parse_qs, quote
+from bs4 import BeautifulSoup
 import yaml
 
 # --- НАСТРОЙКИ ---
 CHANNELS = [
     "shadowsockskeys", "oneclickvpnkeys", "v2ray_outlineir",
-    "v2ray_free_conf", "v2rayngvpn", "v2ray_free_vpn"
+    "v2ray_free_conf", "v2rayngvpn", "v2ray_free_vpn",
+    "gurvpn_keys", "vmessh", "VMESS7", "VlessConfig",
+    "PrivateVPNs", "nV_v2ray", "NotorVPN", "FairVpn_V2ray",
+    "outline_marzban", "outline_k"
 ]
 
 EXTERNAL_SUBS = [
     "https://raw.githubusercontent.com/yebekhe/TelegramV2rayCollector/main/sub/normal/mix",
     "https://raw.githubusercontent.com/vfarid/v2ray-share/main/all_v2ray_configs.txt",
     "https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub1.txt",
-    "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge.txt",
-    "https://raw.githubusercontent.com/LonUp/NodeList/main/NodeList.txt"
+    "https://raw.githubusercontent.com/LonUp/NodeList/main/NodeList.txt",
+    "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge.txt"
 ]
 
-MAX_TOTAL_ALIVE = 1000
-TIMEOUT = 1.2 # Чуть больше времени на «подумать»
-CONCURRENCY_LIMIT = 50 # Уменьшил нагрузку, чтобы не было ложных срабатываний
+MAX_LINKS_PER_TG = 800   # Лимит ссылок с одного канала ТГ
+MAX_PAGES_TG = 30        # Глубина листания истории ТГ
+MAX_TOTAL_ALIVE = 1000   # Итого в файле
+TIMEOUT = 1.2            # Чуть добавил времени для стабильности мобильного инета
+CONCURRENCY_LIMIT = 50
 
 # --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 
@@ -42,7 +48,7 @@ def get_flag(code):
 def get_ip_info(ips):
     if not ips: return {}
     ip_map = {}
-    print(f"🌍 GeoIP Анализ...")
+    print(f"🌍 GeoIP для {len(ips)} IP...")
     for i in range(0, len(ips), 100):
         batch = ips[i:i+100]
         try:
@@ -54,28 +60,18 @@ def get_ip_info(ips):
     return ip_map
 
 async def check_latency(ip, port, sem):
-    """Возвращает честный пинг или None"""
     async with sem:
         try:
             start = time.time()
-            # Открываем соединение
             conn = asyncio.open_connection(ip, port)
-            reader, writer = await asyncio.wait_for(conn, timeout=TIMEOUT)
-            
-            # ВАЖНО: Если соединение открылось подозрительно быстро (меньше 10мс),
-            # скорее всего это мгновенный сброс или ошибка.
+            _, writer = await asyncio.wait_for(conn, timeout=TIMEOUT)
             lat = int((time.time() - start) * 1000)
-            
-            # Попробуем подождать чуть-чуть, не закроется ли оно само
-            await asyncio.sleep(0.05)
-            
+            await asyncio.sleep(0.05) # Проверка на моментальный разрыв
             writer.close()
             await writer.wait_closed()
-            
-            if lat < 10: return None # Отсекаем фейковые 1мс
+            if lat < 10: return None # Смерть фейкам
             return lat
-        except:
-            return None
+        except: return None
 
 def parse_link(link):
     try:
@@ -91,40 +87,76 @@ def parse_link(link):
     except: pass
     return None, None
 
-# --- ЛОГИКА ---
+# --- ГЛОБАЛЬНЫЙ ПАРСЕР ---
 
-def get_links():
-    seen = set(); links = []
-    reg = re.compile(r'(?:vless|vmess|ss|ssr|trojan|hy2|hysteria|tuic)://[^\s<"\'\)]+')
+def get_all_links():
+    seen = set()
+    all_links = []
+    stats = {}
+    reg = re.compile(r'(?:vless|vmess|ss|ssr|trojan|hy2|hysteria|hysteria2|tuic)://[^\s<"\'\)]+')
     head = {'User-Agent': 'Mozilla/5.0'}
-    # Собираем ТГ
+
+    print("🚀 Начинаю сбор данных...")
+
+    # 1. ТЕЛЕГРАМ С ПАГИНАЦИЕЙ
     for c in CHANNELS:
-        try:
-            r = requests.get(f"https://t.me/s/{c}", headers=head, timeout=10)
-            for l in reg.findall(r.text):
-                cl = l.strip().split('<')[0].split('"')[0].split("'")[0]
-                if cl not in seen: seen.add(cl); links.append(cl)
-        except: pass
-    # Собираем Внешние
+        url = f"https://t.me/s/{c}"
+        found_here = 0
+        for _ in range(MAX_PAGES_TG):
+            try:
+                r = requests.get(url, headers=head, timeout=10)
+                soup = BeautifulSoup(r.text, 'html.parser')
+                msgs = soup.find_all('div', class_='tgme_widget_message_text')
+                if not msgs: break
+                
+                new_on_page = 0
+                for m in reversed(msgs):
+                    matches = reg.findall(m.get_text())
+                    for l in matches:
+                        cl = l.strip().split('<')[0].split('"')[0].split("'")[0]
+                        if cl not in seen:
+                            seen.add(cl); all_links.append(cl); found_here += 1; new_on_page += 1
+                
+                if found_here >= MAX_LINKS_PER_TG or new_on_page == 0: break
+                
+                more = soup.find('a', class_='tme_messages_more')
+                if more: url = "https://t.me" + more['href']
+                else: break
+            except: break
+        stats[c] = found_here
+
+    # 2. ГИТХАБ / ВНЕШНИЕ
     for url in EXTERNAL_SUBS:
+        name = url.split('/')[-2] if 'github' in url else 'external'
+        found_here = 0
         try:
-            r = requests.get(url, headers=head, timeout=15); text = r.text
-            found = reg.findall(text)
+            r = requests.get(url, headers=head, timeout=15)
+            content = r.text
+            found = reg.findall(content)
             if len(found) < 10:
-                decoded = b64_decode(text)
+                decoded = b64_decode(content)
                 if decoded: found = reg.findall(decoded)
+            
             for l in found:
                 cl = l.strip()
-                if cl not in seen: seen.add(cl); links.append(cl)
+                if cl not in seen:
+                    seen.add(cl); all_links.append(cl); found_here += 1
+                if found_here >= 1500: break
         except: pass
-    return links
+        stats[name] = found_here
+
+    # ПЕЧАТАЕМ КРАСИВЫЙ ОТЧЕТ В ЛОГИ
+    print("\n📊 ОТЧЕТ ПО ИСТОЧНИКАМ (уникальные):")
+    for src, count in stats.items():
+        print(f"   - {src.ljust(20)}: +{count}")
+    print(f"🔥 Итого кандидатов: {len(all_links)}\n")
+    
+    return all_links
 
 def link_to_clash(link, ip, latency, info):
     country = info.get('c', ''); isp = info.get('i', ''); flag = get_flag(country)
-    bad = ['amazon','aws','google','oracle','azure','digitalocean','hetzner','cloudflare','vultr','linode','m247','akamai','fastly']
+    bad = ['amazon','aws','google','oracle','azure','digitalocean','hetzner','cloudflare','vultr','linode','m247']
     is_ai = country not in ['RU','BY','CN','IR','KP','SY'] and not any(w in isp for w in bad) and not link.startswith("ss://")
-    
-    # Сверх-короткое имя для FlClash
     name = f"{flag}{'✨' if is_ai else ''} {latency}ms | {ip.split('.')[-1]}"
 
     try:
@@ -152,8 +184,10 @@ def link_to_clash(link, ip, latency, info):
     return None
 
 async def main_logic():
-    raw = get_links()
-    print(f"🧐 Найдено {len(raw)} ссылок. Замеряем...")
+    raw = get_all_links()
+    if not raw: return
+    
+    print(f"🧐 Замеряю задержку для {len(raw)} ссылок...")
     sem = asyncio.Semaphore(CONCURRENCY_LIMIT)
     
     tasks = []
@@ -171,28 +205,22 @@ async def main_logic():
     
     results = await asyncio.gather(*(verify(x) for x in tasks))
     alive = [r for r in results if r is not None]
+    alive.sort(key=lambda x: x[2]) # Сортировка по пингу
     
-    # СОРТИРУЕМ ПО ПИНГУ (самые быстрые в начале)
-    alive.sort(key=lambda x: x[2])
-    
-    # Оставляем топ
     top_alive = alive[:MAX_TOTAL_ALIVE]
-    print(f"✅ Живых: {len(alive)}. Берем ТОП-{len(top_alive)} лучших.")
-    
     info_map = get_ip_info([x[1] for x in top_alive])
     
     clash_list = []; final_links = []
     for l, ip, lat in top_alive:
         obj = link_to_clash(l, ip, lat, info_map.get(ip, {}))
         if obj:
-            # Уникальность имен
             while any(p['name'] == obj['name'] for p in clash_list): obj['name'] += " "
             clash_list.append(obj); final_links.append(l)
 
     with open("list.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_links))
     with open("sub.txt", "w", encoding="utf-8") as f: f.write(base64.b64encode("\n".join(final_links).encode()).decode())
     with open("proxies.yaml", "w", encoding="utf-8") as f: yaml.dump({'proxies': clash_list}, f, allow_unicode=True, sort_keys=False)
-    print(f"🎉 Готово!")
+    print(f"🎉 Готово! Всего элитных серверов: {len(clash_list)}")
 
 if __name__ == "__main__":
     asyncio.run(main_logic())
