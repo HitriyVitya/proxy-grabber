@@ -8,23 +8,26 @@ from urllib.parse import urlparse, unquote, parse_qs, quote
 from bs4 import BeautifulSoup
 import yaml
 
-# --- НАСТРОЙКИ ДЛЯ КИТАЯ ---
+# --- НАСТРОЙКИ СПАСЕНИЯ ---
 CHANNELS = [
-    "VlessConfig", "PrivateVPNs", "oneclickvpnkeys", 
-    "v2ray_outlineir", "v2ray_free_conf", "shadowsockskeys"
+    "shadowsockskeys", "oneclickvpnkeys", "v2ray_outlineir",
+    "v2ray_free_conf", "VlessConfig", "PrivateVPNs", "nV_v2ray"
 ]
 
 EXTERNAL_SUBS = [
     "https://raw.githubusercontent.com/yebekhe/TelegramV2rayCollector/main/sub/normal/mix",
     "https://raw.githubusercontent.com/vfarid/v2ray-share/main/all_v2ray_configs.txt",
-    "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge.txt",
+    "https://raw.githubusercontent.com/WilliamStar007/ClashX-V2Ray-TopFreeProxy/main/main.txt",
     "https://raw.githubusercontent.com/LalatinaHub/Mineral/master/etc/all",
-    "https://raw.githubusercontent.com/officialputuid/V2Ray-Config/main/Splitted-v2ray-config/all"
+    "https://raw.githubusercontent.com/vless-reality/vless-reality/main/sub"
 ]
 
-MAX_TOTAL_ALIVE = 1000
-TIMEOUT = 2.0 # Увеличим время, в аэропорту инет может быть тугим
-CONCURRENCY_LIMIT = 40 # Меньше нагрузки, чтобы не палиться
+# Ключевые страны для обхода GFW (Азия)
+ASIA_WINS = ['VN', 'HK', 'SG', 'JP', 'KR', 'MY', 'TW']
+
+MAX_TOTAL_ALIVE = 1200
+TIMEOUT = 1.8 # Средний баланс для китайского мобильного инета
+CONCURRENCY_LIMIT = 40
 
 # --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 
@@ -40,10 +43,23 @@ def get_flag(code):
     if not code or code == '??': return "🏳️"
     return "".join(chr(ord(c) + 127397) for c in code.upper())
 
+def batch_get_ip_info(ips):
+    if not ips: return {}
+    ip_map = {}
+    print(f"🌍 GeoIP Анализ для Азии...")
+    for i in range(0, len(ips), 100):
+        batch = ips[i:i+100]
+        try:
+            r = requests.post("http://ip-api.com/batch", json=[{"query": x, "fields": "countryCode"} for x in batch], timeout=15)
+            for idx, res in enumerate(r.json()):
+                ip_map[batch[idx]] = res.get('countryCode', '')
+            time.sleep(1.2)
+        except: pass
+    return ip_map
+
 async def check_port(ip, port, sem):
     async with sem:
         try:
-            # В Китае даже соединение может висеть, поэтому проверяем быстро
             conn = asyncio.open_connection(ip, port)
             _, writer = await asyncio.wait_for(conn, timeout=TIMEOUT)
             writer.close()
@@ -69,10 +85,8 @@ def parse_link(link):
 
 def get_links():
     seen = set(); links = []
-    # Добавили socks5 и hy2 в регулярку
     reg = re.compile(r'(?:vless|vmess|ss|ssr|trojan|hy2|hysteria|hysteria2|tuic|socks5)://[^\s<"\'\)]+')
     head = {'User-Agent': 'Mozilla/5.0'}
-    
     for c in CHANNELS:
         try:
             r = requests.get(f"https://t.me/s/{c}", headers=head, timeout=10)
@@ -80,11 +94,9 @@ def get_links():
                 cl = l.strip().split('<')[0].split('"')[0]
                 if cl not in seen: seen.add(cl); links.append(cl)
         except: pass
-    
     for url in EXTERNAL_SUBS:
         try:
-            r = requests.get(url, headers=head, timeout=15)
-            content = r.text
+            r = requests.get(url, headers=head, timeout=15); content = r.text
             found = reg.findall(content)
             if len(found) < 10:
                 decoded = b64_decode(content)
@@ -95,32 +107,29 @@ def get_links():
         except: pass
     return links
 
-def add_labels(link, ip):
-    # ЛОГИКА ДЛЯ КИТАЯ: Ищем Reality и стойкие протоколы
+def add_labels_asia(link, ip, country_code):
+    """Приоритеты для Китая"""
+    flag = get_flag(country_code)
     label = ""
-    priority = 100 # Чем меньше, тем выше в списке
+    priority = 100 
     
-    # Reality - самый топ для Китая
+    # 1. Reality - БЕТОН
     if "reality" in link.lower() or "pbk=" in link.lower():
         label = "🛡️ Reality"
         priority = 1
+    # 2. Азия (Вьетнам и ко) - ШАНС ВЫШЕ
+    elif country_code in ASIA_WINS:
+        label = f"🌏 {country_code}"
+        priority = 5
+    # 3. Скоростные UDP
     elif link.startswith("hy2://") or "hysteria2" in link.lower():
         label = "⚡ Hy2"
         priority = 10
-    elif "type=ws" in link.lower():
-        label = "☁️ CDN"
-        priority = 20
-    elif link.startswith("socks5://"):
-        label = "🧦 SOCKS5"
-        priority = 5
-    elif link.startswith("vless://"):
-        label = "⚓ Vless"
-        priority = 30
     else:
         label = "🌐 Proxy"
         priority = 50
 
-    name = f"{label} | {ip.split('.')[-1]}"
+    name = f"{flag} {label} | {ip.split('.')[-1]}"
     return name, priority
 
 def link_to_clash(link, name):
@@ -145,21 +154,16 @@ def link_to_clash(link, name):
                 userinfo, serverinfo = main.split("@", 1)
                 dec_u = b64_decode(userinfo)
                 if ":" in dec_u: method, password = dec_u.split(":", 1)
-                else: method, password = userinfo.split(":", 1)
+                elif ":" in userinfo: method, password = userinfo.split(":", 1)
+                else: return None
                 host = serverinfo.split(":")[0]; port = int(serverinfo.split(":")[1].split("/")[0])
                 return {'name': name, 'type': 'ss', 'server': host, 'port': port, 'cipher': method, 'password': password, 'udp': True}
-        
-        if link.startswith("socks5://"):
-            # socks5://user:pass@host:port
-            p = urlparse(link)
-            return {'name': name, 'type': 'socks5', 'server': p.hostname, 'port': p.port, 'username': p.username, 'password': p.password, 'udp': True}
-            
     except: pass
     return None
 
 async def main_logic():
     raw = get_links()
-    print(f"🧐 Найдено {len(raw)} ссылок. Ищем выход из Китая...")
+    print(f"🧐 Найдено {len(raw)} ссылок. Пробиваем Азию...")
     sem = asyncio.Semaphore(CONCURRENCY_LIMIT)
     
     tasks = []
@@ -169,29 +173,36 @@ async def main_logic():
     
     async def verify(item):
         link, ip, port = item
-        if await check_port(ip, port, sem):
-            name, prio = add_labels(link, ip)
-            return (link, name, prio)
+        if await check_port(ip, port, sem): return (link, ip)
         return None
 
     results = await asyncio.gather(*(verify(x) for x in tasks))
     alive = [r for r in results if r is not None]
     
-    # СОРТИРОВКА ПО ПРИОРИТЕТУ (Reality и SOCKS5 в самый верх)
-    alive.sort(key=lambda x: x[2])
+    # Получаем страны для всех живых
+    info_map = batch_get_ip_info([x[1] for x in alive])
+    
+    # Готовим итоговый список с приоритетами
+    priority_list = []
+    for l, ip in alive:
+        country = info_map.get(ip, '')
+        name, prio = add_labels_asia(l, ip, country)
+        priority_list.append((l, name, prio))
+    
+    # Сортируем: Reality и Азия в начало
+    priority_list.sort(key=lambda x: x[2])
     
     clash_list = []; final_links = []
-    for l, name, prio in alive[:MAX_TOTAL_ALIVE]:
+    for l, name, prio in priority_list[:MAX_TOTAL_ALIVE]:
         obj = link_to_clash(l, name)
         if obj:
-            # Уникальность имен
             while any(p['name'] == obj['name'] for p in clash_list): obj['name'] += " "
             clash_list.append(obj); final_links.append(l)
 
     with open("list.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_links))
     with open("sub.txt", "w", encoding="utf-8") as f: f.write(base64.b64encode("\n".join(final_links).encode()).decode())
     with open("proxies.yaml", "w", encoding="utf-8") as f: yaml.dump({'proxies': clash_list}, f, allow_unicode=True, sort_keys=False)
-    print(f"🎉 Готово! Выгружено {len(clash_list)} серверов. Reality и SOCKS5 в топе.")
+    print(f"🎉 Готово! Азия и Reality выведены в топ.")
 
 if __name__ == "__main__":
     asyncio.run(main_logic())
